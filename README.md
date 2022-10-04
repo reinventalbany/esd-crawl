@@ -31,4 +31,6 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Save as `parsehub.csv` in this directory
 1. Combine the data
    1. Run `python esd_crawl/combine.py`
-1. View `pdfs.csv`. There will be one row per PDF URL.
+1. View `pdfs.csv`
+
+There will be one row per PDF URL, and multiple titles and source URLs for each will be combined with newlines within each row.

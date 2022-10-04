@@ -1,31 +1,13 @@
-# import json
-
-
-# f = open("/Users/afeld/Downloads/run_results-3.json")
-# data = json.load(f)
-
-
-# num_pdfs = 0
-# num_pages = 0
-# for result in data["report"]:
-#     if result["url"].endswith(".pdf"):
-#         num_pdfs += 1
-#     else:
-#         num_pages += 1
-#         print(result["url"])
-
-# print("PDFs:", num_pdfs)
-# print("Pages:", num_pages)
-
-
 import csv
 
+ORIGIN = "https://esd.ny.gov"
 pdfs = {}
 
 
 def add_pdf(url, title, source):
     if url.startswith("/"):
-        url = f"https://esd.ny.gov{url}"
+        # use absolute URLs
+        url = ORIGIN + url
 
     if url not in pdfs:
         # first time being seen
@@ -34,9 +16,9 @@ def add_pdf(url, title, source):
             "sources": set(),
         }
 
-    pdf_data = pdfs[url]
-    pdf_data["titles"].add(title.strip())
-    pdf_data["sources"].add(source)
+    info = pdfs[url]
+    info["titles"].add(title.strip())
+    info["sources"].add(source)
 
 
 with open("scrapy.csv", mode="r") as file:
@@ -47,15 +29,22 @@ with open("scrapy.csv", mode="r") as file:
 with open("parsehub.csv", mode="r") as file:
     reader = csv.DictReader(file)
     for entry in reader:
-        add_pdf(
-            entry["report_url"],
-            entry["report_name"],
-            "https://esd.ny.gov/esd-media-center/reports?tid[0]=516",
-        )
+        url = entry["report_url"]
+
+        # The report will contain links to both PDFs and other pages. The latter will be covered by the sitemap crawl, so we can ignore them here.
+        if url.endswith(".pdf"):
+            add_pdf(
+                url,
+                entry["report_name"],
+                "https://esd.ny.gov/esd-media-center/reports?tid[0]=516",
+            )
 
 
 def list_cell(data):
+    """Format a list for entry in a data cell"""
+
     if len(data) > 5:
+        # don't bother squishing in a zillion entries
         return "(many)"
     else:
         return "\n".join(data)
@@ -66,9 +55,8 @@ with open("pdfs.csv", "w") as csvfile:
     writer.writeheader()
 
     for url, info in pdfs.items():
-        row = {"url": url}
-
-        row["titles"] = list_cell(info["titles"])
-        row["sources"] = list_cell(info["sources"])
+        titles = list_cell(info["titles"])
+        sources = list_cell(info["sources"])
+        row = {"url": url, "titles": titles, "sources": sources}
 
         writer.writerow(row)
