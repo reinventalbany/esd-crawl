@@ -1,20 +1,34 @@
 # Empire State Development data scraper
 
-The goal of this tool is to find data on the [Empire State Development website](https://esd.ny.gov/), either in web pages or PDFs.
+The goal of this tool is to find data on the [Empire State Development website](https://esd.ny.gov/), either in web pages or PDFs. [Running notes document.](https://docs.google.com/document/d/1HaWvHlpCYcD1SRmZn9DbsQoFCkvywBifcyME4cvjT-k/edit)
 
-[Running notes document](https://docs.google.com/document/d/1HaWvHlpCYcD1SRmZn9DbsQoFCkvywBifcyME4cvjT-k/edit)
+## Technical overview
+
+The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516) is done via [ParseHub](https://parsehub.com/), as that was easier to get working for the AJAX pagination.
 
 ## Usage
 
-1. Install Python 3
-1. Install [Poetry](https://python-poetry.org/)
-1. Clone repository
-1. From repository directory, run `poetry init`.
-1. Run `poetry shell`.
-1. Run the scraper. This will take a few minutes.
+1. Crawl HTML pages
 
-   ```sh
-   scrapy runspider esd_crawl/scraper.py -O pdfs.csv
-   ```
+   1. Install Python 3
+   1. Install [Poetry](https://python-poetry.org/)
+   1. Clone repository
+   1. From repository directory, run `poetry init`
+   1. Run `poetry shell`
+   1. Run the scraper. This will take a few minutes.
 
-1. View the list of discovered PDFs in `pdfs.csv`.
+      ```sh
+      scrapy runspider esd_crawl/scraper.py -O scrapy.csv
+      ```
+
+   1. View the list of discovered PDFs in `scrapy.csv`. Note there will be duplicate URLs present.
+
+1. Crawl [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516)
+   1. Install [ParseHub](https://parsehub.com/)
+   1. [Import](https://help.parsehub.com/hc/en-us/articles/115001733294-Export-Import-Projects) the Project, which is the `esd.ny.gov_Project.phj` file in this directory
+   1. Run the Project
+   1. Download Data as CSV
+   1. Save as `parsehub.csv` in this directory
+1. Combine the data
+   1. Run `python esd_crawl/combine.py`
+1. View `pdfs.csv`. There will be one row per PDF URL.

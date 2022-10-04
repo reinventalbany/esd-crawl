@@ -11,13 +11,10 @@ class ESDSpider(SitemapSpider):
 
         # find links to PDFs
         for link in response.css('a[href$=".pdf"]'):
-            title = link.css("::text").get().strip()
+            title = link.css("::text").get()
             url = link.css("::attr(href)").get()
 
-            yield {
-                "title": title,
-                "url": url,
-            }
+            yield {"title": title, "url": url, "source": response.url}
 
         # for next_page in response.css("a[href]::attr(href)").extract():
         #     yield response.follow(next_page, self.parse)
