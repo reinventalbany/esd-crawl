@@ -6,9 +6,13 @@ class ESDSpider(SitemapSpider):
     allowed_domains = ["esd.ny.gov"]
     sitemap_urls = ["https://esd.ny.gov/sitemap.xml"]
 
-    def parse(self, response):
-        # print(response)
+    # https://docs.scrapy.org/en/latest/topics/settings.html#built-in-settings-reference
+    custom_settings = {
+        # throttle the crawl to reduce load on the site
+        "DOWNLOAD_DELAY": 0.25
+    }
 
+    def parse(self, response):
         # find links to PDFs
         for link in response.css('a[href$=".pdf"]'):
             title = link.css("::text").get()
