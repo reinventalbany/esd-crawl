@@ -36,7 +36,7 @@ with open("parsehub.csv", mode="r") as file:
             add_pdf(
                 url,
                 entry["report_name"],
-                "https://esd.ny.gov/esd-media-center/reports?tid[0]=516",
+                entry["report_source"],
             )
 
 
