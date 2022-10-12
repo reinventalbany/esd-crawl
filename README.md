@@ -18,7 +18,7 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Run the scraper. This will take a few minutes.
 
       ```sh
-      scrapy runspider esd_crawl/scraper.py -O scrapy.csv
+      scrapy runspider esd_crawl/spider.py -O scrapy.csv
       ```
 
    1. View the list of discovered PDFs in `scrapy.csv`. Note there will be duplicate URLs present.
