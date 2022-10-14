@@ -18,10 +18,10 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Run the spider. This will take a few minutes.
 
       ```sh
-      scrapy runspider esd_crawl/spiders/esd.py -L INFO -O scrapy.csv
+      scrapy runspider esd_crawl/spiders/esd.py -L INFO -O scrapy.json
       ```
 
-   1. View the list of discovered PDFs in `scrapy.csv`. Note there will be duplicate URLs present.
+   1. View the list of discovered PDFs in `scrapy.json`. Note there will be duplicate URLs present.
 
 1. Crawl [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516)
    1. Install [ParseHub](https://parsehub.com/)
@@ -36,7 +36,6 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. [Install visual debugging dependencies](https://github.com/jsvine/pdfplumber#visual-debugging)
    1. Open [`extract.ipynb`](esd_crawl/extract.ipynb) in Visual Studio Code
    1. Click `Run All`
-1. Re-run the spider, but this time with a `.json` extension on the output file
 1. Put table images somewhere publicly accessible. Example for [Google Cloud Storage](https://cloud.google.com/storage):
    1. [Create a bucket](https://cloud.google.com/storage/docs/creating-buckets)
    1. [Upload the `tables/` folder](https://cloud.google.com/storage/docs/uploading-objects)

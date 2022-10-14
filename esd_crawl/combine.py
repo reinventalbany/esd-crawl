@@ -1,4 +1,5 @@
 import csv
+import json
 
 ORIGIN = "https://esd.ny.gov"
 pdfs = {}
@@ -21,12 +22,13 @@ def add_pdf(url, title, source):
     info["sources"].add(source)
 
 
-with open("scrapy.csv", mode="r") as file:
-    reader = csv.DictReader(file)
-    for entry in reader:
-        add_pdf(entry["url"], entry["title"], entry["source"])
+with open("scrapy.json") as file:
+    data = json.load(file)
+    for entry in data:
+        url = entry["file_urls"][0]
+        add_pdf(url, entry["title"], entry["source"])
 
-with open("parsehub.csv", mode="r") as file:
+with open("parsehub.csv") as file:
     reader = csv.DictReader(file)
     for entry in reader:
         url = entry["report_url"]
