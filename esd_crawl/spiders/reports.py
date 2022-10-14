@@ -1,26 +1,16 @@
 import asyncio
-from esd_crawl.spiders.utils import find_pdf_links
-from io import BytesIO
-import logging
+from esd_crawl.spiders.utils import display_screenshot, find_pdf_links
 import os
-from PIL import Image
 from scrapy import Request, Spider
 from scrapy_playwright.page import PageMethod
 
 PREVIEW = "PREVIEW" in os.environ
 
 
-async def display_screenshot(page):
-    screenshot = await page.screenshot(full_page=True)
-    im = Image.open(BytesIO(screenshot))
-    im.show()
-
-
 class ReportsSpider(Spider):
     name = "reportsspider"
     allowed_domains = ["esd.ny.gov"]
     start_urls = ["https://esd.ny.gov/esd-media-center?tid[]=516"]
-    # TODO limit to Reports / Media Center
 
     NEXT_SELECTOR = "#page-next"
     DELAY_SECONDS = 0.5
@@ -58,7 +48,7 @@ class ReportsSpider(Spider):
         # the Reports listing is paginated with AJAX, so loop through pages by clicking through them in a browser rather than sending separate Requests
         while True:
             page = response.meta["playwright_page"]
-            logging.debug(f"URL: {page.url}")
+            self.logger.debug(f"URL: {page.url}")
 
             for item in find_pdf_links(response):
                 pdfs.append(item)
