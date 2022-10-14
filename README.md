@@ -18,7 +18,7 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Run the scraper. This will take a few minutes.
 
       ```sh
-      scrapy runspider esd_crawl/scraper.py -O scrapy.csv
+      scrapy runspider esd_crawl/spider.py -L INFO -O scrapy.csv
       ```
 
    1. View the list of discovered PDFs in `scrapy.csv`. Note there will be duplicate URLs present.
@@ -32,5 +32,9 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
 1. Combine the data
    1. Run `python esd_crawl/combine.py`
 1. View `pdfs.csv`
+1. Extract the tables
+   1. [Install visual debugging dependencies](https://github.com/jsvine/pdfplumber#visual-debugging)
+   1. Open [`extract.ipynb`](esd_crawl/extract.ipynb) in Visual Studio Code
+   1. Click `Run All`
 
 There will be one row per PDF URL, and multiple titles and source URLs for each will be combined with newlines within each row.
