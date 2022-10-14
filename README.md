@@ -41,7 +41,15 @@ There will be one row per PDF URL, and multiple titles and source URLs for each 
 
 ## Troubleshooting
 
-[The spider](esd_crawl/spiders/esd.py) can be tested on a particular URL with:
+### Limit the crawl
+
+See the [close spider settings](https://docs.scrapy.org/en/latest/topics/extensions.html#module-scrapy.extensions.closespider). For example:
+
+```sh
+scrapy runspider esd_crawl/spiders/esd.py -s CLOSESPIDER_ITEMCOUNT=5
+```
+
+### Test a particular URL
 
 ```sh
 scrapy parse --pipelines <url>
