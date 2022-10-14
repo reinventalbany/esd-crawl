@@ -1,4 +1,4 @@
-from esd_crawl.items import PDF
+from esd_crawl.spiders.utils import find_pdf_links
 from scrapy.spiders import SitemapSpider
 
 
@@ -8,15 +8,7 @@ class ESDSpider(SitemapSpider):
     sitemap_urls = ["https://esd.ny.gov/sitemap.xml"]
 
     def parse(self, response):
-        # find links to PDFs
-        for link in response.css('a[href$=".pdf"]'):
-            title = link.css("::text").get()
-            url = link.css("::attr(href)").get()
-            absolute_url = response.urljoin(url)
-
-            # https://docs.scrapy.org/en/latest/topics/media-pipeline.html#using-the-files-pipeline
-            item = PDF(title=title, file_urls=[absolute_url], source=response.url)
-            yield item
+        yield from find_pdf_links(response)
 
         # for next_page in response.css("a[href]::attr(href)").extract():
         #     yield response.follow(next_page, self.parse)
