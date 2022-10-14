@@ -11,7 +11,7 @@ class ESDSpider(SitemapSpider):
         # throttle the crawl to reduce load on the site
         "DOWNLOAD_DELAY": 0.25,
         # https://docs.scrapy.org/en/latest/topics/media-pipeline.html#enabling-your-media-pipeline
-        "ITEM_PIPELINES": {"esd_crawl.pipeline.FindTablePipeline": 300},
+        "ITEM_PIPELINES": {"esd_crawl.pipelines.FindTablePipeline": 300},
         "FILES_STORE": "downloads",
     }
 
