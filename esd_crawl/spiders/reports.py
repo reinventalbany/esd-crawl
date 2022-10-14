@@ -50,17 +50,22 @@ class ReportsSpider(Spider):
                 errback=self.errback,
             )
 
+    async def go_to_next_page(self, page):
+        await page.click(selector=self.NEXT_SELECTOR)
+        await asyncio.sleep(1)
+
     async def parse(self, response):
         # await close_page(response.meta)
 
         # the Reports listing is paginated with AJAX, so loop through pages by clicking through them in a browser rather than sending separate Requests
         while True:
+            page = response.meta["playwright_page"]
+
             for item in find_pdf_links(response):
                 print(item)
                 # TODO yield
 
             if PREVIEW:
-                page = response.meta["playwright_page"]
                 await display_screenshot(page)
 
             next_page = response.css(self.NEXT_SELECTOR).get()
@@ -68,8 +73,7 @@ class ReportsSpider(Spider):
                 # last page
                 break
 
-            await page.click(selector=self.NEXT_SELECTOR)
-            await asyncio.sleep(1)
+            await self.go_to_next_page(page)
 
     async def errback(self, failure):
         await close_page(failure.request.meta)
