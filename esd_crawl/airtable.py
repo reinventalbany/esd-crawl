@@ -5,9 +5,6 @@ import requests
 key = os.environ["AIRTABLE_API_KEY"]
 img_prefix = os.environ["IMG_PREFIX"]
 
-with open("scrapy.json") as f:
-    pdfs = json.load(f)
-
 
 def create_record(table_name, record):
     # https://airtable.com/appdrqXSd2JNXkLp7/api/docs#curl/table:tables:create
@@ -27,8 +24,8 @@ def create_record(table_name, record):
     return resp_data["records"][0]["id"]
 
 
-def create_pdf(url, title):
-    record = {"fields": {"URL": url, "Titles": title}}
+def create_pdf(url, titles):
+    record = {"fields": {"URL": url, "Titles": "\n".join(titles)}}
     return create_record("PDFs", record)
 
 
@@ -42,9 +39,11 @@ def create_table(img_url, pdf_id):
     return create_record("Tables", record)
 
 
-for pdf in pdfs:
-    pdf_url = pdf["file_urls"][0]
-    pdf_id = create_pdf(pdf_url, pdf["title"])
+with open("pdfs.json") as f:
+    pdfs = json.load(f)
+
+for pdf_url, pdf in pdfs.items():
+    pdf_id = create_pdf(pdf_url, pdf["titles"])
     if pdf_id is None:
         continue
 
