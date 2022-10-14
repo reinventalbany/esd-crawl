@@ -777,7 +777,7 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "Pillow"
+name = "pillow"
 version = "9.2.0"
 description = "Python Imaging Library (Fork)"
 category = "main"
@@ -1091,6 +1091,14 @@ w3lib = ">=1.17.0"
 "zope.interface" = ">=5.0.0"
 
 [[package]]
+name = "scrapy-splash"
+version = "0.8.0"
+description = "JavaScript support for Scrapy using Splash"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "Send2Trash"
 version = "1.8.0"
 description = "Send file to trash natively under Mac OS X, Windows and Linux."
@@ -1360,7 +1368,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "ab01b0f2c0763a842d1240e0c56507a63d2ab8f152cd2e7862d6c1797e8b363c"
+content-hash = "ee8d1eb760be3ea5a15152d8264c151fdaee29d4ab952e5e7d55e3eb1631d9ff"
 
 [metadata.files]
 appnope = [
@@ -1827,7 +1835,7 @@ pickleshare = [
     {file = "pickleshare-0.7.5-py2.py3-none-any.whl", hash = "sha256:9649af414d74d4df115d5d718f82acb59c9d418196b7b4290ed47a12ce62df56"},
     {file = "pickleshare-0.7.5.tar.gz", hash = "sha256:87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca"},
 ]
-Pillow = [
+pillow = [
     {file = "Pillow-9.2.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:a9c9bc489f8ab30906d7a85afac4b4944a572a7432e00698a7239f44a44e6efb"},
     {file = "Pillow-9.2.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:510cef4a3f401c246cfd8227b300828715dd055463cdca6176c2e4036df8bd4f"},
     {file = "Pillow-9.2.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7888310f6214f19ab2b6df90f3f06afa3df7ef7355fc025e78a3044737fab1f5"},
@@ -2124,6 +2132,10 @@ requests-file = [
 Scrapy = [
     {file = "Scrapy-2.6.3-py2.py3-none-any.whl", hash = "sha256:24b7641cb115853b4b81f0bda1b042e745b7a6209072a189a751729520f1e42d"},
     {file = "Scrapy-2.6.3.tar.gz", hash = "sha256:bdff1aaf3547c2e540436d3ab8680b21039327bd5d3a2ef89c34165992d3e5f3"},
+]
+scrapy-splash = [
+    {file = "scrapy-splash-0.8.0.tar.gz", hash = "sha256:a7c17735415151ae01f07b03c7624e7276a343779b3c5f4546f655f6133df42f"},
+    {file = "scrapy_splash-0.8.0-py2.py3-none-any.whl", hash = "sha256:f35986fbe916d4b7878f4d303ca6a9d4f013157ab2bae13d85f14da78d211193"},
 ]
 Send2Trash = [
     {file = "Send2Trash-1.8.0-py3-none-any.whl", hash = "sha256:f20eaadfdb517eaca5ce077640cb261c7d2698385a6a0f072a4a5447fd49fa08"},
