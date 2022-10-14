@@ -10,18 +10,20 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
 
 1. Crawl HTML pages
 
-   1. Install Python 3
-   1. Install [Poetry](https://python-poetry.org/)
+   1. Install dependencies
+      - Python 3
+      - [Poetry](https://python-poetry.org/)
+      - [Visual debugging](https://github.com/jsvine/pdfplumber#visual-debugging)
    1. Clone repository
    1. From repository directory, run `poetry init`
    1. Run `poetry shell`
-   1. Run the scraper. This will take a few minutes.
+   1. Run the spider. This will take a few minutes.
 
       ```sh
-      scrapy runspider esd_crawl/spiders/esd.py -L INFO -O scrapy.csv
+      scrapy runspider esd_crawl/spiders/esd.py -L INFO -O scrapy.json
       ```
 
-   1. View the list of discovered PDFs in `scrapy.csv`. Note there will be duplicate URLs present.
+   1. View the list of discovered PDFs in `scrapy.json`. Note there will be duplicate URLs present.
 
 1. Crawl [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516)
    1. Install [ParseHub](https://parsehub.com/)
@@ -30,12 +32,30 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Download Data as CSV
    1. Save as `parsehub.csv` in this directory
 1. Combine the data
-   1. Run `python esd_crawl/combine.py`
-1. View `pdfs.csv`
-1. Extract the tables
-   1. [Install visual debugging dependencies](https://github.com/jsvine/pdfplumber#visual-debugging)
-   1. Open [`extract.ipynb`](esd_crawl/extract.ipynb) in Visual Studio Code
-   1. Click `Run All`
+
+   ```sh
+   python esd_crawl/combine.py
+   ```
+
+1. Put table images somewhere publicly accessible. Example for [Google Cloud Storage](https://cloud.google.com/storage):
+   1. [Create a bucket](https://cloud.google.com/storage/docs/creating-buckets)
+   1. [Upload the `tables/` folder](https://cloud.google.com/storage/docs/uploading-objects)
+   1. [Make the bucket publicly readable](https://cloud.google.com/storage/docs/access-control/making-data-public#buckets)
+   1. [Get the public URL](https://cloud.google.com/storage/docs/access-public-data#console) from one of the objects
+1. Create the Airtable records
+
+   1. [Get your Airtable API key](https://airtable.com/account)
+   1. Set the key as an environment variable:
+
+      ```sh
+       export AIRTABLE_API_KEY=...
+      ```
+
+   1. Run the script. `IMG_PREFIX` will be the public object URL, minus the filename. Example:
+
+      ```sh
+      IMG_PREFIX=https://storage.googleapis.com/esd-data/tables/ python esd_crawl/airtable.py
+      ```
 
 There will be one row per PDF URL, and multiple titles and source URLs for each will be combined with newlines within each row.
 
@@ -56,3 +76,7 @@ scrapy parse --pipelines <url>
 ```
 
 [More info on `parse`](https://docs.scrapy.org/en/latest/topics/commands.html#parse), and [general debugging info](https://docs.scrapy.org/en/latest/topics/debug.html).
+
+### Notebook
+
+There is also [a Jupyter notebook](esd_crawl/extract.ipynb) for experimentation.
