@@ -2,9 +2,14 @@ from io import BytesIO
 import os
 from PIL import Image
 from scrapy import Request, Spider
-from scrapy_playwright.page import PageMethod
 
 PREVIEW = "PREVIEW" in os.environ
+
+
+async def display_screenshot(page):
+    screenshot = await page.screenshot(full_page=True)
+    im = Image.open(BytesIO(screenshot))
+    im.show()
 
 
 class ReportsSpider(Spider):
@@ -27,9 +32,8 @@ class ReportsSpider(Spider):
                 url=url,
                 meta={
                     "playwright": True,
-                    "playwright_page_methods": [
-                        PageMethod("screenshot", path="example.png", full_page=True)
-                    ],
+                    "playwright_include_page": True,
+                    "playwright_page_methods": [],
                 },
             )
 
@@ -42,6 +46,5 @@ class ReportsSpider(Spider):
             print("LINK:", title, absolute_url)
 
         if PREVIEW:
-            screenshot = response.meta["playwright_page_methods"][0]
-            im = Image.open(BytesIO(screenshot.result))
-            im.show()
+            page = response.meta["playwright_page"]
+            await display_screenshot(page)
