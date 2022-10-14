@@ -38,3 +38,13 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Click `Run All`
 
 There will be one row per PDF URL, and multiple titles and source URLs for each will be combined with newlines within each row.
+
+## Troubleshooting
+
+[The spider](esd_crawl/spiders/esd.py) can be tested on a particular URL with:
+
+```sh
+scrapy parse --pipelines <url>
+```
+
+[More info on `parse`](https://docs.scrapy.org/en/latest/topics/commands.html#parse), and [general debugging info](https://docs.scrapy.org/en/latest/topics/debug.html).
