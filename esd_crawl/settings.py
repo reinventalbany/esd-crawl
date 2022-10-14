@@ -14,7 +14,7 @@ NEWSPIDER_MODULE = "esd_crawl.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = 'esd_crawl (+http://www.yourdomain.com)'
+USER_AGENT = "esd_crawl (+https://github.com/reinventalbany/esd-crawl)"
 
 # Obey robots.txt rules
 # ROBOTSTXT_OBEY = True
