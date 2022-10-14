@@ -1,17 +1,13 @@
 import asyncio
 from esd_crawl.spiders.utils import find_pdf_links
 from io import BytesIO
+import logging
 import os
 from PIL import Image
 from scrapy import Request, Spider
 from scrapy_playwright.page import PageMethod
 
 PREVIEW = "PREVIEW" in os.environ
-
-
-async def close_page(meta):
-    page = meta["playwright_page"]
-    await page.close()
 
 
 async def display_screenshot(page):
@@ -27,6 +23,7 @@ class ReportsSpider(Spider):
     # TODO limit to Reports / Media Center
 
     NEXT_SELECTOR = "#page-next"
+    DELAY_SECONDS = 0.5
 
     custom_settings = {
         "TWISTED_REACTOR": "twisted.internet.asyncioreactor.AsyncioSelectorReactor",
@@ -52,18 +49,19 @@ class ReportsSpider(Spider):
 
     async def go_to_next_page(self, page):
         await page.click(selector=self.NEXT_SELECTOR)
-        await asyncio.sleep(1)
+        await asyncio.sleep(self.DELAY_SECONDS)
 
     async def parse(self, response):
-        # await close_page(response.meta)
+        # since coroutines can't yield, need to return all the items combined as one
+        pdfs = []
 
         # the Reports listing is paginated with AJAX, so loop through pages by clicking through them in a browser rather than sending separate Requests
         while True:
             page = response.meta["playwright_page"]
+            logging.debug(f"URL: {page.url}")
 
             for item in find_pdf_links(response):
-                print(item)
-                # TODO yield
+                pdfs.append(item)
 
             if PREVIEW:
                 await display_screenshot(page)
@@ -71,9 +69,11 @@ class ReportsSpider(Spider):
             next_page = response.css(self.NEXT_SELECTOR).get()
             if next_page is None:
                 # last page
-                break
+                await page.close()
+                return pdfs
 
             await self.go_to_next_page(page)
 
     async def errback(self, failure):
-        await close_page(failure.request.meta)
+        page = failure.request.meta["playwright_page"]
+        await page.close()
