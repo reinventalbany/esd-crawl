@@ -12,6 +12,7 @@ python = "^3.10"
 pdfplumber = "^0.7.5"
 jupyter = "^1.0.0"
 notebook = "^6.4.12"
+openpyxl = "^3.0.10"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
