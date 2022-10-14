@@ -20,9 +20,10 @@ class ESDSpider(SitemapSpider):
         for link in response.css('a[href$=".pdf"]'):
             title = link.css("::text").get()
             url = link.css("::attr(href)").get()
+            absolute_url = response.urljoin(url)
 
             # https://docs.scrapy.org/en/latest/topics/media-pipeline.html#using-the-files-pipeline
-            yield {"title": title, "file_urls": [url], "source": response.url}
+            yield {"title": title, "file_urls": [absolute_url], "source": response.url}
 
         # for next_page in response.css("a[href]::attr(href)").extract():
         #     yield response.follow(next_page, self.parse)
