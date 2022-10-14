@@ -60,9 +60,9 @@ EXTENSIONS = {"scrapy.extensions.closespider.CloseSpider": 500}
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    'esd_crawl.pipelines.EsdCrawl2Pipeline': 300,
-# }
+# https://docs.scrapy.org/en/latest/topics/media-pipeline.html#enabling-your-media-pipeline
+ITEM_PIPELINES = {"esd_crawl.pipelines.FindTablePipeline": 300}
+FILES_STORE = "downloads"
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
