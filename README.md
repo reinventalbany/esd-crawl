@@ -15,7 +15,7 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Clone repository
    1. From repository directory, run `poetry init`
    1. Run `poetry shell`
-   1. Run the scraper. This will take a few minutes.
+   1. Run the spider. This will take a few minutes.
 
       ```sh
       scrapy runspider esd_crawl/spiders/esd.py -L INFO -O scrapy.csv
@@ -36,6 +36,26 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. [Install visual debugging dependencies](https://github.com/jsvine/pdfplumber#visual-debugging)
    1. Open [`extract.ipynb`](esd_crawl/extract.ipynb) in Visual Studio Code
    1. Click `Run All`
+1. Re-run the spider, but this time with a `.json` extension on the output file
+1. Put table images somewhere publicly accessible. Example for [Google Cloud Storage](https://cloud.google.com/storage):
+   1. [Create a bucket](https://cloud.google.com/storage/docs/creating-buckets)
+   1. [Upload the `tables/` folder](https://cloud.google.com/storage/docs/uploading-objects)
+   1. [Make the bucket publicly readable](https://cloud.google.com/storage/docs/access-control/making-data-public#buckets)
+   1. [Get the public URL](https://cloud.google.com/storage/docs/access-public-data#console) from one of the objects
+1. Create the Airtable records
+
+   1. [Get your Airtable API key](https://airtable.com/account)
+   1. Set the key as an environment variable:
+
+      ```sh
+       export AIRTABLE_API_KEY=...
+      ```
+
+   1. Run the script. `IMG_PREFIX` will be the public object URL, minus the filename. Example:
+
+      ```sh
+      IMG_PREFIX=https://storage.googleapis.com/esd-data/tables/ python esd_crawl/airtable.py
+      ```
 
 There will be one row per PDF URL, and multiple titles and source URLs for each will be combined with newlines within each row.
 
