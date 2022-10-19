@@ -83,8 +83,9 @@ There is also [a Jupyter notebook](esd_crawl/extract.ipynb) for experimentation.
 
 ## Tests
 
-To run tests:
+To run tests with [coverage](https://pytest-cov.readthedocs.io/):
 
 ```sh
-pytest
+pytest --cov=esd_crawl --cov-report=html
+open htmlcov/index.html
 ```
