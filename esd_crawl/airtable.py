@@ -3,22 +3,60 @@ import os
 import requests
 
 
+def table_api_url(table_name):
+    return f"https://api.airtable.com/v0/appdrqXSd2JNXkLp7/{table_name}"
+
+
+def find_record_by(key: str, table_name: str, column: str, val: str):
+    url = table_api_url(table_name)
+    headers = {"Authorization": f"Bearer {key}"}
+
+    response = requests.get(
+        url,
+        headers=headers,
+        params={"maxRecords": 1, "filterByFormula": f"{{{column}}} = '{val}'"},
+    )
+    resp_data: dict = response.json()
+
+    if response.status_code != 200:
+        # failure
+        print("")
+        print(resp_data)
+        raise RuntimeError("Unable to get records")
+
+    records: list[dict] = resp_data["records"]
+    if len(records) == 0:
+        return None
+
+    return records[0]
+
+
 def create_record(key, table_name, record):
     # https://airtable.com/appdrqXSd2JNXkLp7/api/docs#curl/table:tables:create
-    base = f"https://api.airtable.com/v0/appdrqXSd2JNXkLp7/{table_name}"
+    url = table_api_url(table_name)
     headers = {"Authorization": f"Bearer {key}"}
     data = {"records": [record]}
 
-    response = requests.post(base, headers=headers, json=data)
+    response = requests.post(url, headers=headers, json=data)
     resp_data = response.json()
 
     if response.status_code != 200:
         # failure
         print("")
         print(resp_data)
-        return None
+        raise RuntimeError("Unable to create record")
 
-    return resp_data["records"][0]["id"]
+    id: str = resp_data["records"][0]["id"]
+    return id
+
+
+def upsert_record(key: str, table_name: str, id_column: str, record: dict):
+    existing = find_record_by(key, table_name, id_column, record[id_column])
+    if existing:
+        id: str = existing["id"]
+        return id
+
+    return create_record(key, table_name, record)
 
 
 def create_pdf(key, url, titles):
@@ -45,8 +83,6 @@ def run():
 
     for pdf_url, pdf in pdfs.items():
         pdf_id = create_pdf(key, pdf_url, pdf["titles"])
-        if pdf_id is None:
-            continue
 
         for image in pdf["img_paths"]:
             img_url = img_prefix + image
