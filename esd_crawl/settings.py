@@ -64,6 +64,9 @@ EXTENSIONS = {"scrapy.extensions.closespider.CloseSpider": 500}
 ITEM_PIPELINES = {"esd_crawl.pipelines.FindTablePipeline": 300}
 FILES_STORE = "downloads"
 
+# https://docs.scrapy.org/en/latest/topics/request-response.html#request-fingerprinter-implementation
+REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
+
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
 # AUTOTHROTTLE_ENABLED = True
