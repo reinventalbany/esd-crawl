@@ -12,7 +12,9 @@ logging.getLogger("PIL").setLevel(logging.INFO)
 def pages_with_tables(path):
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
-            tables = page.find_tables()
+            # reduce false positives
+            # https://github.com/jsvine/pdfplumber#table-extraction-strategies
+            tables = page.find_tables({"vertical_strategy": "lines_strict"})
             if len(tables) > 0:
                 yield page
 
