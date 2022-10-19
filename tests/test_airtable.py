@@ -48,7 +48,7 @@ def test_upsert_record_doesnt_exist_success(r_mock):
         airtable.table_api_url(table_name),
         match=[
             query_param_matcher(
-                {"maxRecords": 1, "filterByFormula": "{myattr} = 'foo'"}
+                {"maxRecords": 1, "filterByFormula": "{uniqcol} = 'foo'"}
             )
         ],
         json={"records": []},
@@ -56,22 +56,64 @@ def test_upsert_record_doesnt_exist_success(r_mock):
 
     mock_create_record(r_mock, table_name)
 
-    id = airtable.upsert_record("123", table_name, "myattr", {"myattr": "foo"})
+    id = airtable.upsert_record(
+        "123",
+        table_name,
+        "uniqcol",
+        {
+            "fields": {
+                "uniqcol": "foo",
+            }
+        },
+    )
     assert id is not None
 
 
 def test_upsert_record_exists_success(r_mock):
     table_name = "Fake"
+    url = airtable.table_api_url(table_name)
 
     r_mock.get(
-        airtable.table_api_url(table_name),
+        url,
         match=[
             query_param_matcher(
-                {"maxRecords": 1, "filterByFormula": "{myattr} = 'foo'"}
+                {"maxRecords": 1, "filterByFormula": "{uniqcol} = 'foo'"}
             )
         ],
-        json={"records": [{"id": "456"}]},
+        json={
+            "records": [
+                # existing
+                {
+                    "id": "456",
+                    "fields": {
+                        "uniqcol": "foo",
+                        "othercol": "bar",
+                    },
+                }
+            ]
+        },
+    )
+    r_mock.patch(
+        url,
+        json={
+            "records": [
+                # updated
+                {
+                    "id": "456",
+                    "fields": {
+                        "uniqcol": "foo",
+                        "othercol": "baz",
+                    },
+                }
+            ]
+        },
     )
 
-    id = airtable.upsert_record("123", table_name, "myattr", {"myattr": "foo"})
+    record = {
+        "fields": {
+            "uniqcol": "foo",
+            "othercol": "baz",
+        }
+    }
+    id = airtable.upsert_record("123", table_name, "uniqcol", record)
     assert id == "456"

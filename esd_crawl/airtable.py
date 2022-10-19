@@ -38,7 +38,6 @@ def find_record_by(key: str, table_name: str, column: str, val: str):
 
 def create_record(key, table_name, record):
     data = {"records": [record]}
-
     response = perform_request("POST", table_name, key, json=data)
     resp_data = response.json()
 
@@ -52,10 +51,31 @@ def create_record(key, table_name, record):
     return id
 
 
-def upsert_record(key: str, table_name: str, id_column: str, record: dict):
-    existing = find_record_by(key, table_name, id_column, record[id_column])
+def update_record(key: str, table_name: str, record: dict):
+    if "id" not in record:
+        raise RuntimeError("Record must have an id specified")
+
+    data = {"records": [record]}
+    response = perform_request("PATCH", table_name, key, json=data)
+    resp_data = response.json()
+
+    if response.status_code != 200:
+        # failure
+        print("")
+        print(resp_data)
+        raise RuntimeError("Unable to update record")
+
+
+def upsert_record(key: str, table_name: str, unique_column: str, record: dict):
+    unique_val = record["fields"][unique_column]
+    existing = find_record_by(key, table_name, unique_column, unique_val)
     if existing:
         id: str = existing["id"]
+        new_record = record.copy()
+        new_record["id"] = id
+
+        update_record(key, table_name, new_record)
+
         return id
 
     return create_record(key, table_name, record)
