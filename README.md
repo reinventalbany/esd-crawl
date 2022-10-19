@@ -80,3 +80,11 @@ scrapy parse --pipelines <url>
 ### Notebook
 
 There is also [a Jupyter notebook](esd_crawl/extract.ipynb) for experimentation.
+
+## Tests
+
+To run tests:
+
+```sh
+pytest
+```
