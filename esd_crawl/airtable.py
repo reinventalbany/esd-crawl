@@ -1,5 +1,6 @@
 import json
 import os
+from urllib.parse import urlparse
 import requests
 
 
@@ -81,20 +82,35 @@ def upsert_record(key: str, table_name: str, unique_column: str, record: dict):
     return create_record(key, table_name, record)
 
 
-def create_pdf(key, url, titles):
+def upsert_pdf(key, url, titles):
     record = {"fields": {"URL": url, "Titles": "\n".join(titles)}}
-    return create_record(key, "PDFs", record)
+    return upsert_record(key, "PDFs", "URL", record)
 
 
-def create_table(key, img_url, pdf_id):
+def upsert_table(key, img_url, pdf_id):
     # https://airtable.com/appdrqXSd2JNXkLp7/api/docs#curl/table:tables:create
+
+    table_name = "Tables"
     record = {
         "fields": {
             "Image": [{"url": img_url}],
             "PDF": [pdf_id],
         }
     }
-    return create_record(key, "Tables", record)
+
+    # since this is a computed/formula column, use a variation of the upsert logic
+    path = urlparse(img_url).path
+    filename = os.path.basename(path)
+    existing = find_record_by(key, table_name, "Image filename", filename)
+    if existing:
+        id: str = existing["id"]
+        record["id"] = id
+
+        update_record(key, table_name, record)
+
+        return id
+
+    return create_record(key, table_name, record)
 
 
 def run():
@@ -105,11 +121,11 @@ def run():
         pdfs = json.load(f)
 
     for pdf_url, pdf in pdfs.items():
-        pdf_id = create_pdf(key, pdf_url, pdf["titles"])
+        pdf_id = upsert_pdf(key, pdf_url, pdf["titles"])
 
         for image in pdf["img_paths"]:
             img_url = img_prefix + image
-            table_id = create_table(key, img_url, pdf_id)
+            table_id = upsert_table(key, img_url, pdf_id)
             if table_id:
                 print(".", end="", flush=True)
 
