@@ -1,3 +1,4 @@
+from esd_crawl.items import PDF
 from scrapy.spiders import SitemapSpider
 
 
@@ -14,7 +15,8 @@ class ESDSpider(SitemapSpider):
             absolute_url = response.urljoin(url)
 
             # https://docs.scrapy.org/en/latest/topics/media-pipeline.html#using-the-files-pipeline
-            yield {"title": title, "file_urls": [absolute_url], "source": response.url}
+            item = PDF(title=title, file_urls=[absolute_url], source=response.url)
+            yield item
 
         # for next_page in response.css("a[href]::attr(href)").extract():
         #     yield response.follow(next_page, self.parse)

@@ -1,7 +1,5 @@
-from hashlib import md5
-from io import BytesIO
-from itemadapter import ItemAdapter
 import os
+from esd_crawl.items import PDF
 from esd_crawl.tables import TableFinder
 from scrapy.pipelines.files import FilesPipeline
 
@@ -11,10 +9,7 @@ class FindTablePipeline(FilesPipeline):
         super().__init__(store_uri, download_func, settings)
         self.finder = TableFinder()
 
-    def item_completed(self, results, item, info):
-        adapter = ItemAdapter(item)
-        adapter["img_paths"] = []
-
+    def item_completed(self, results, item: PDF, info):
         for ok, result in results:
             if not ok:
                 continue
@@ -23,6 +18,6 @@ class FindTablePipeline(FilesPipeline):
             # info is pipeline.SpiderInfo
             img_paths = self.finder.find_tables(pdf_path, info)
             # TODO include page number
-            adapter["img_paths"].extend(img_paths)
+            item.img_paths.extend(img_paths)
 
         return item
