@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import urllib.parse
 
 key = os.environ["AIRTABLE_API_KEY"]
 img_prefix = os.environ["IMG_PREFIX"]
@@ -8,7 +9,8 @@ img_prefix = os.environ["IMG_PREFIX"]
 
 def create_record(table_name, record):
     # https://airtable.com/appdrqXSd2JNXkLp7/api/docs#curl/table:tables:create
-    base = f"https://api.airtable.com/v0/appdrqXSd2JNXkLp7/{table_name}"
+    table_name_enc = urllib.parse.quote(table_name)
+    base = f"https://api.airtable.com/v0/appdrqXSd2JNXkLp7/{table_name_enc}"
     headers = {"Authorization": f"Bearer {key}"}
     data = {"records": [record]}
 
@@ -39,6 +41,16 @@ def create_table(img_url, pdf_id):
     return create_record("Tables", record)
 
 
+def create_pdf_reference(page_url, pdf_id):
+    record = {
+        "fields": {
+            "Page": page_url,
+            "PDF": [pdf_id],
+        }
+    }
+    return create_record("PDF reference", record)
+
+
 with open("pdfs.json") as f:
     pdfs = json.load(f)
 
@@ -46,6 +58,9 @@ for pdf_url, pdf in pdfs.items():
     pdf_id = create_pdf(pdf_url, pdf["titles"])
     if pdf_id is None:
         continue
+
+    for source in pdf["sources"]:
+        create_pdf_reference(source, pdf_id)
 
     for image in pdf["img_paths"]:
         img_url = img_prefix + image
