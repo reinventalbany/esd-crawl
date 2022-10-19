@@ -98,7 +98,8 @@ def upsert_table(key, img_url, pdf_id):
         }
     }
 
-    # since this is a computed/formula column, use a variation of the upsert logic
+    # since this is a computed/formula column, use a variation of the upsert logic to find based on that field but don't try and set the value
+    # https://stackoverflow.com/a/18727481/358804
     path = urlparse(img_url).path
     filename = os.path.basename(path)
     existing = find_record_by(key, table_name, "Image filename", filename)

@@ -1,7 +1,12 @@
 from hashlib import md5
 from io import BytesIO
+import logging
 import pdfplumber
 from scrapy.pipelines.files import FSFilesStore
+
+# these libraries are quite noisy at their DEBUG log level, so override them
+logging.getLogger("pdfminer").setLevel(logging.INFO)
+logging.getLogger("PIL").setLevel(logging.INFO)
 
 
 def pages_with_tables(path):
