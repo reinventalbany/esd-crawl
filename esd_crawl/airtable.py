@@ -7,13 +7,18 @@ def table_api_url(table_name):
     return f"https://api.airtable.com/v0/appdrqXSd2JNXkLp7/{table_name}"
 
 
-def find_record_by(key: str, table_name: str, column: str, val: str):
+def perform_request(method: str, table_name: str, key: str, **kwargs):
     url = table_api_url(table_name)
     headers = {"Authorization": f"Bearer {key}"}
 
-    response = requests.get(
-        url,
-        headers=headers,
+    return requests.request(method, url, headers=headers, **kwargs)
+
+
+def find_record_by(key: str, table_name: str, column: str, val: str):
+    response = perform_request(
+        "GET",
+        table_name,
+        key,
         params={"maxRecords": 1, "filterByFormula": f"{{{column}}} = '{val}'"},
     )
     resp_data: dict = response.json()
@@ -32,12 +37,9 @@ def find_record_by(key: str, table_name: str, column: str, val: str):
 
 
 def create_record(key, table_name, record):
-    # https://airtable.com/appdrqXSd2JNXkLp7/api/docs#curl/table:tables:create
-    url = table_api_url(table_name)
-    headers = {"Authorization": f"Bearer {key}"}
     data = {"records": [record]}
 
-    response = requests.post(url, headers=headers, json=data)
+    response = perform_request("POST", table_name, key, json=data)
     resp_data = response.json()
 
     if response.status_code != 200:
@@ -65,6 +67,7 @@ def create_pdf(key, url, titles):
 
 
 def create_table(key, img_url, pdf_id):
+    # https://airtable.com/appdrqXSd2JNXkLp7/api/docs#curl/table:tables:create
     record = {
         "fields": {
             "Image": [{"url": img_url}],
