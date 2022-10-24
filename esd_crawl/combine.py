@@ -1,4 +1,5 @@
 import csv
+from esd_crawl.items import PDF
 import json
 
 ORIGIN = "https://esd.ny.gov"
@@ -8,7 +9,12 @@ class PdfSet:
     def __init__(self):
         self.pdfs = {}
 
-    def add(self, url: str, title: str, source: str, img_paths: list[str]):
+    def add(self, pdf: PDF):
+        if len(pdf.file_urls) > 1:
+            raise RuntimeError("PDF has more than one file URL")
+
+        url = pdf.file_urls[0]
+
         if url.startswith("/"):
             # use absolute URLs
             url = ORIGIN + url
@@ -22,9 +28,9 @@ class PdfSet:
             }
 
         info = self.pdfs[url]
-        info["titles"].add(title.strip())
-        info["sources"].add(source)
-        info["img_paths"].update(img_paths)
+        info["titles"].add(pdf.title.strip())
+        info["sources"].add(pdf.source)
+        info["img_paths"].update(pdf.img_paths)
 
     def to_dict(self):
         return self.pdfs
@@ -44,8 +50,8 @@ def run():
     with open("scrapy.json") as file:
         data = json.load(file)
         for entry in data:
-            url = entry["file_urls"][0]
-            pdfs.add(url, entry["title"], entry["source"], entry["img_paths"])
+            pdf = PDF(**entry)
+            pdfs.add(pdf)
 
     with open("parsehub.csv") as file:
         reader = csv.DictReader(file)
@@ -54,7 +60,13 @@ def run():
 
             # The report will contain links to both PDFs and other pages. The latter will be covered by the sitemap crawl, so we can ignore them here.
             if url.endswith(".pdf"):
-                pdfs.add(url, entry["report_name"], entry["report_source"], [])
+                pdf = PDF(
+                    title=entry["report_name"],
+                    source=entry["report_source"],
+                    file_urls=[url],
+                    img_paths=[],
+                )
+                pdfs.add(pdf)
 
     with open("pdfs.json", "w") as file:
         json.dump(pdfs.to_dict(), file, cls=SetEncoder)
