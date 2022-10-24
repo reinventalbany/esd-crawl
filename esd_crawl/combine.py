@@ -24,13 +24,14 @@ class PdfSet:
             self.pdfs[url] = {
                 "titles": set(),
                 "sources": set(),
-                "img_paths": set(),
+                "tables": [],
             }
 
         info = self.pdfs[url]
         info["titles"].add(pdf.title.strip())
         info["sources"].add(pdf.source)
-        info["img_paths"].update(pdf.img_paths)
+        # assuming the same tables will be found each time
+        info["tables"] = pdf.tables
 
     def to_dict(self):
         return self.pdfs
@@ -64,7 +65,7 @@ def run():
                     title=entry["report_name"],
                     source=entry["report_source"],
                     file_urls=[url],
-                    img_paths=[],
+                    tables=[],
                 )
                 pdfs.add(pdf)
 

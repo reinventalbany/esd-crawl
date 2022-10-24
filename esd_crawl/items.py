@@ -3,8 +3,14 @@ from dataclasses import dataclass, field
 
 
 @dataclass
+class Table:
+    img_path: str
+    page_num: int
+
+
+@dataclass
 class PDF:
     title: str
     source: str
     file_urls: list[str]
-    img_paths: list[str] = field(default_factory=list)
+    tables: list[Table] = field(default_factory=list)
