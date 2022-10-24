@@ -3,6 +3,7 @@ from io import BytesIO
 import logging
 import pdfplumber
 from scrapy.pipelines.files import FSFilesStore
+from scrapy.pipelines.media import MediaPipeline
 
 # these libraries are quite noisy at their DEBUG log level, so override them
 logging.getLogger("pdfminer").setLevel(logging.INFO)
@@ -12,9 +13,7 @@ logging.getLogger("PIL").setLevel(logging.INFO)
 def pages_with_tables(path):
     with pdfplumber.open(path) as pdf:
         for page in pdf.pages:
-            # reduce false positives
-            # https://github.com/jsvine/pdfplumber#table-extraction-strategies
-            tables = page.find_tables({"vertical_strategy": "lines_strict"})
+            tables = page.find_tables()
             if len(tables) > 0:
                 yield page
 
@@ -47,7 +46,7 @@ class TableFinder:
         img = finder.annotated
         return self.persist_img(img, info)
 
-    def find_tables(self, pdf_path, info):
+    def find_tables(self, pdf_path: str, info: MediaPipeline.SpiderInfo):
         pages = pages_with_tables(pdf_path)
 
         # not exactly sure what the info is used for, but passing it along to be consistent
