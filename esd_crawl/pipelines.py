@@ -15,8 +15,7 @@ class FindTablePipeline(FilesPipeline):
                 continue
 
             pdf_path = os.path.join(self.store.basedir, result["path"])
-            img_paths = self.finder.find_tables(pdf_path, info)
-            # TODO include page number
-            item.img_paths.extend(img_paths)
+            tables = self.finder.find_tables(pdf_path, info)
+            item.tables.extend(tables)
 
         return item

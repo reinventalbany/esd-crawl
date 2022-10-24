@@ -1,3 +1,4 @@
+from esd_crawl.items import Table
 import json
 import os
 from urllib.parse import urlparse
@@ -87,13 +88,16 @@ def upsert_pdf(key, url, titles):
     return upsert_record(key, "PDFs", "URL", record)
 
 
-def upsert_table(key, img_url, pdf_id):
+def upsert_table(key: str, table: Table, img_prefix: str, pdf_id: str):
     # https://airtable.com/appdrqXSd2JNXkLp7/api/docs#curl/table:tables:create
+
+    img_url = img_prefix + table.img_path
 
     table_name = "Tables"
     record = {
         "fields": {
             "Image": [{"url": img_url}],
+            "Page": table.page_num,
             "PDF": [pdf_id],
         }
     }
@@ -105,7 +109,7 @@ def upsert_table(key, img_url, pdf_id):
     existing = find_record_by(key, table_name, "Image filename", filename)
     if existing:
         id: str = existing["id"]
-        record["id"] = id
+        record["id"] = id  # type: ignore
 
         update_record(key, table_name, record)
 
@@ -124,9 +128,9 @@ def run():
     for pdf_url, pdf in pdfs.items():
         pdf_id = upsert_pdf(key, pdf_url, pdf["titles"])
 
-        for image in pdf["img_paths"]:
-            img_url = img_prefix + image
-            table_id = upsert_table(key, img_url, pdf_id)
+        for table_data in pdf["tables"]:
+            table = Table(**table_data)
+            table_id = upsert_table(key, table, img_prefix, pdf_id)
             if table_id:
                 print(".", end="", flush=True)
 
