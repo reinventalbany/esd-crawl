@@ -1,4 +1,3 @@
-import csv
 from esd_crawl.items import PDF
 import json
 
@@ -48,25 +47,11 @@ class SetEncoder(json.JSONEncoder):
 def run():
     pdfs = PdfSet()
 
-    with open("scrapy.json") as file:
-        data = json.load(file)
-        for entry in data:
-            pdf = PDF(**entry)
-            pdfs.add(pdf)
-
-    with open("parsehub.csv") as file:
-        reader = csv.DictReader(file)
-        for entry in reader:
-            url = entry["report_url"]
-
-            # The report will contain links to both PDFs and other pages. The latter will be covered by the sitemap crawl, so we can ignore them here.
-            if url.endswith(".pdf"):
-                pdf = PDF(
-                    title=entry["report_name"],
-                    source=entry["report_source"],
-                    file_urls=[url],
-                    tables=[],
-                )
+    for data_path in ["scrapy.json", "reports.json"]:
+        with open(data_path) as file:
+            data = json.load(file)
+            for entry in data:
+                pdf = PDF(**entry)
                 pdfs.add(pdf)
 
     with open("pdfs.json", "w") as file:

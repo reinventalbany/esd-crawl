@@ -4,7 +4,7 @@ from esd_crawl.tables import TableFinder
 import json
 
 
-finder = TableFinder("parsehub_tables")
+finder = TableFinder()
 pdfs = []
 
 with open("parsehub.csv") as file:
