@@ -1,7 +1,6 @@
 from esd_crawl.items import Table
 import json
 import os
-from urllib.parse import urlparse
 import requests
 
 
@@ -89,23 +88,12 @@ def upsert_pdf(key, url, titles):
 
 
 def upsert_table(key: str, table: Table, img_prefix: str, pdf_id: str):
-    # https://airtable.com/appdrqXSd2JNXkLp7/api/docs#curl/table:tables:create
-
-    img_url = img_prefix + table.img_path
-
     table_name = "Tables"
-    record = {
-        "fields": {
-            "Image": [{"url": img_url}],
-            "Page": table.page_num,
-            "PDF": [pdf_id],
-        }
-    }
+    record = table.to_airtable_record(img_prefix, pdf_id)
 
     # since this is a computed/formula column, use a variation of the upsert logic to find based on that field but don't try and set the value
     # https://stackoverflow.com/a/18727481/358804
-    path = urlparse(img_url).path
-    filename = os.path.basename(path)
+    filename = os.path.basename(table.img_path)
     existing = find_record_by(key, table_name, "Image filename", filename)
     if existing:
         id: str = existing["id"]
