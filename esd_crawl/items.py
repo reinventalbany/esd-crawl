@@ -34,6 +34,15 @@ class PDF:
         return urljoin(self.ORIGIN, self.file_urls[0])
 
 
+@dataclass
+class Report:
+    """Individual record output by ParseHub"""
+
+    report_url: str
+    report_name: str
+    report_source: str
+
+
 class DataClassEncoder(json.JSONEncoder):
     def default(self, obj):
         if is_dataclass(obj):
