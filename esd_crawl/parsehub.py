@@ -1,3 +1,4 @@
+from io import BufferedReader
 import tempfile
 from esd_crawl.tables import TableFinder
 import requests
@@ -5,9 +6,9 @@ import requests
 
 finder = TableFinder("parsehub_tables")
 url = "https://esd.ny.gov/sites/default/files/news-articles/2021-NYSTAR-NY-MEP-Annual-Report.pdf"
-with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+with tempfile.NamedTemporaryFile(suffix=".pdf") as fp:
     response = requests.get(url)
-    f.write(response.content)
-    pdf_path = f.name
+    fp.write(response.content)
+    fp.seek(0)
 
-finder.find_tables(pdf_path, {})
+    finder.find_tables(fp, {})  # type: ignore
