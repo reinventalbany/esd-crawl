@@ -1,8 +1,10 @@
 from esd_crawl.items import Table
 from hashlib import md5
-from io import BytesIO
+from io import BufferedReader, BytesIO
 import logging
+from pathlib import Path
 import pdfplumber
+import requests
 from scrapy.pipelines.files import FSFilesStore
 from scrapy.pipelines.media import MediaPipeline
 
@@ -11,8 +13,8 @@ logging.getLogger("pdfminer").setLevel(logging.INFO)
 logging.getLogger("PIL").setLevel(logging.INFO)
 
 
-def pages_with_tables(path):
-    with pdfplumber.open(path) as pdf:
+def pages_with_tables(path_or_fp: str | Path | BufferedReader):
+    with pdfplumber.open(path_or_fp) as pdf:
         for page in pdf.pages:
             tables = page.find_tables()
             if len(tables) > 0:
@@ -20,8 +22,8 @@ def pages_with_tables(path):
 
 
 class TableFinder:
-    def __init__(self):
-        self.store = FSFilesStore("tables")
+    def __init__(self, path="tables"):
+        self.store = FSFilesStore(path)
 
     def persist_img(self, img, info: MediaPipeline.SpiderInfo, extension="png"):
         # based on
@@ -51,8 +53,21 @@ class TableFinder:
         img_path = self.save_table_img(page, info)
         return Table(page_num=page.page_number, img_path=img_path)
 
-    def find_tables(self, pdf_path: str, info: MediaPipeline.SpiderInfo):
-        pages = pages_with_tables(pdf_path)
+    def find_tables(
+        self,
+        pdf_path_or_fp: str | Path | BufferedReader,
+        info: MediaPipeline.SpiderInfo,
+    ):
+        pages = pages_with_tables(pdf_path_or_fp)
 
         # not exactly sure what the info is used for, but passing it along to be consistent
         return [self.find_table(page, info) for page in pages]
+
+    def find_tables_from_url(self, pdf_url: str, info: MediaPipeline.SpiderInfo):
+        response = requests.get(pdf_url)
+
+        # convert to the necessary type
+        b_io = BytesIO(response.content)
+        reader = BufferedReader(b_io)  # type: ignore
+
+        return self.find_tables(reader, info)

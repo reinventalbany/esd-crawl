@@ -1,5 +1,6 @@
 # https://docs.scrapy.org/en/latest/topics/items.html#dataclass-objects
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, is_dataclass
+import json
 
 
 @dataclass
@@ -25,3 +26,10 @@ class PDF:
     source: str
     file_urls: list[str]
     tables: list[Table] = field(default_factory=list)
+
+
+class DataClassEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if is_dataclass(obj):
+            return asdict(obj)
+        return json.JSONEncoder.default(self, obj)

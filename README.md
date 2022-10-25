@@ -31,6 +31,7 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Run the Project
    1. Download Data as CSV
    1. Save as `parsehub.csv` in this directory
+   1. Run `python esd_crawl/parsehub.py`
 1. Combine the data
 
    ```sh
