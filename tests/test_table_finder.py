@@ -1,3 +1,4 @@
+from responses import RequestsMock
 from esd_crawl.items import Table
 from esd_crawl.tables import TableFinder
 import os
@@ -16,6 +17,12 @@ def pdf_path():
     return os.path.join("tests", "NYSTAR-2022-Annual-Report.pdf")
 
 
+def mock_pdf_download(r_mock: RequestsMock, url: str, file_path: str):
+    with open(file_path, "rb") as f:
+        contents = f.read()
+        r_mock.get(url, body=contents, content_type="application/pdf")
+
+
 def assert_tables(tables: list[Table]):
     assert len(tables) == 4
 
@@ -32,9 +39,7 @@ def test_find_tables(fake_info, pdf_path):
 def test_find_tables_from_url(r_mock, fake_info, pdf_path):
     url = "https://foo.com/bar.pdf"
 
-    with open(pdf_path, "rb") as f:
-        contents = f.read()
-        r_mock.get(url, body=contents, content_type="application/pdf")
+    mock_pdf_download(r_mock, url, pdf_path)
 
     finder = TableFinder()
     tables = finder.find_tables_from_url(url, fake_info)
