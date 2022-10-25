@@ -62,14 +62,20 @@ def format_num(num: int):
 
 
 def print_stats(pdfs: PdfSet):
-    num_pdfs = format_num(pdfs.len())
-    print(f"Number of PDFs: {num_pdfs}")
+    num_pdfs = pdfs.len()
+    print(f"Number of PDFs: {format_num(num_pdfs)}")
 
-    num_with_tables = format_num(pdfs.num_pdfs_with_tables())
-    print(f"Number of PDFs with tables: {num_with_tables}")
+    num_with_tables = pdfs.num_pdfs_with_tables()
+    print(f"Number of PDFs with tables: {format_num(num_with_tables)}")
 
-    num_tables = format_num(pdfs.num_tables())
-    print(f"Number of tables: {num_tables}")
+    pct_with_tables = num_with_tables / num_pdfs * 100
+    print(f"PDFs with tables: {pct_with_tables:.1f}%")
+
+    num_tables = pdfs.num_tables()
+    print(f"Number of tables: {format_num(num_tables)}")
+
+    tables_per_pdf = num_tables / num_pdfs
+    print(f"Average tables per PDF: {tables_per_pdf:.1f}")
 
 
 def run():
