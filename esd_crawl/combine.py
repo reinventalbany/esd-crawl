@@ -66,10 +66,10 @@ def print_stats(pdfs: PdfSet):
     print(f"Number of PDFs: {format_num(num_pdfs)}")
 
     num_with_tables = pdfs.num_pdfs_with_tables()
-    print(f"Number of PDFs with tables: {format_num(num_with_tables)}")
-
     pct_with_tables = num_with_tables / num_pdfs * 100
-    print(f"PDFs with tables: {pct_with_tables:.1f}%")
+    print(
+        f"Number of PDFs with tables: {format_num(num_with_tables)} ({pct_with_tables:.1f}%)"
+    )
 
     num_tables = pdfs.num_tables()
     print(f"Number of tables: {format_num(num_tables)}")
