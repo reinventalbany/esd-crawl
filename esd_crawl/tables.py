@@ -4,8 +4,10 @@ from io import BufferedReader, BytesIO
 import logging
 from pathlib import Path
 import pdfplumber
+import requests
 from scrapy.pipelines.files import FSFilesStore
 from scrapy.pipelines.media import MediaPipeline
+import tempfile
 
 # these libraries are quite noisy at their DEBUG log level, so override them
 logging.getLogger("pdfminer").setLevel(logging.INFO)
@@ -61,3 +63,11 @@ class TableFinder:
 
         # not exactly sure what the info is used for, but passing it along to be consistent
         return [self.find_table(page, info) for page in pages]
+
+    def find_tables_from_url(self, pdf_url: str, info: MediaPipeline.SpiderInfo):
+        with tempfile.NamedTemporaryFile(suffix=".pdf") as fp:
+            response = requests.get(pdf_url)
+            fp.write(response.content)
+            fp.seek(0)
+
+            return self.find_tables(fp, info)  # type: ignore
