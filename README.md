@@ -95,7 +95,10 @@ There is also [a Jupyter notebook](esd_crawl/extract.ipynb) for experimentation.
 To run tests with [coverage](https://pytest-cov.readthedocs.io/):
 
 ```sh
+flake8 --ignore E501
+
 mypy esd_crawl tests
+
 pytest --cov=esd_crawl --cov-report=html
 open htmlcov/index.html
 ```
