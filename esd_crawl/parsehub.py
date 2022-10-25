@@ -1,5 +1,5 @@
 import csv
-from esd_crawl.items import PDF
+from esd_crawl.items import PDF, DataClassEncoder
 from esd_crawl.tables import TableFinder
 import json
 
@@ -26,5 +26,4 @@ with open("parsehub.csv") as file:
             pdfs.append(pdf)
 
 with open("reports.json", "w") as file:
-    data = [pdf.to_dict() for pdf in pdfs]
-    json.dump(data, file)
+    json.dump(pdfs, file, cls=DataClassEncoder)
