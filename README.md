@@ -40,7 +40,7 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
 
 1. Put table images somewhere publicly accessible. Example for [Google Cloud Storage](https://cloud.google.com/storage):
    1. [Create a bucket](https://cloud.google.com/storage/docs/creating-buckets)
-   1. [Upload the `tables/` folder](https://cloud.google.com/storage/docs/uploading-objects)
+   1. [Sync the `tables/` folder](#syncing-to-google-cloud-storage)
    1. [Make the bucket publicly readable](https://cloud.google.com/storage/docs/access-control/making-data-public#buckets)
    1. [Get the public URL](https://cloud.google.com/storage/docs/access-public-data#console) from one of the objects
 1. Create the Airtable records
@@ -59,6 +59,14 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
       ```
 
 There will be one row per PDF URL, and multiple titles and source URLs for each will be combined with newlines within each row.
+
+### Syncing to Google Cloud Storage
+
+Example, using [`gsutil`](https://cloud.google.com/storage/docs/gsutil):
+
+```sh
+gsutil -m rsync -r tables gs://esd-data/tables
+```
 
 ## Troubleshooting
 
