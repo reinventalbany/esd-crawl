@@ -57,6 +57,21 @@ class SetEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+def format_num(num: int):
+    return "{:,}".format(num)
+
+
+def print_stats(pdfs: PdfSet):
+    num_pdfs = format_num(pdfs.len())
+    print(f"Number of PDFs: {num_pdfs}")
+
+    num_with_tables = format_num(pdfs.num_pdfs_with_tables())
+    print(f"Number of PDFs with tables: {num_with_tables}")
+
+    num_tables = format_num(pdfs.num_tables())
+    print(f"Number of tables: {num_tables}")
+
+
 def run():
     pdfs = PdfSet()
 
@@ -72,9 +87,7 @@ def run():
         json.dump(pdfs.to_dict(), file, cls=SetEncoder)
 
     print(f"Wrote PDF records to {output_file}.")
-    print(f"Number of PDFs: {pdfs.len()}")
-    print(f"Number of PDFs with tables: {pdfs.num_pdfs_with_tables()}")
-    print(f"Number of tables: {pdfs.num_tables()}")
+    print_stats(pdfs)
 
 
 if __name__ == "__main__":
