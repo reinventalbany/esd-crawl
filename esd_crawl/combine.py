@@ -1,8 +1,13 @@
+"""This is a script for combining the PDF information from Scrapy and Parsehub."""
+
+
 from esd_crawl.items import PDF
 import json
 
 
 class PdfSet:
+    """Collects and combines PDFs"""
+
     def __init__(self):
         self.pdfs = {}
 
@@ -29,8 +34,12 @@ class PdfSet:
         return self.pdfs
 
 
-# https://bobbyhadz.com/blog/python-typeerror-object-of-type-set-is-not-json-serializable
 class SetEncoder(json.JSONEncoder):
+    """JSON encoder that supports set() objects.
+
+    https://bobbyhadz.com/blog/python-typeerror-object-of-type-set-is-not-json-serializable
+    """
+
     def default(self, obj):
         if isinstance(obj, set):
             return list(obj)

@@ -1,3 +1,5 @@
+"""This script is meant to mirror the FindTablePipeline, but can be run outside of Scrapy."""
+
 import csv
 from esd_crawl.items import PDF, DataClassEncoder
 from esd_crawl.tables import TableFinder

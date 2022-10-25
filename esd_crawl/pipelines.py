@@ -5,6 +5,8 @@ from scrapy.pipelines.files import FilesPipeline
 
 
 class FindTablePipeline(FilesPipeline):
+    """For each item, download the PDF, detect the tables within it, and return the item with that extra information."""
+
     def __init__(self, store_uri, download_func=None, settings=None):
         super().__init__(store_uri, download_func, settings)
         self.finder = TableFinder()

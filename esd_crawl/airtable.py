@@ -1,3 +1,5 @@
+"""This is a script for uploading PDF and Table information to Airtable."""
+
 from esd_crawl.items import Table
 import json
 import os
