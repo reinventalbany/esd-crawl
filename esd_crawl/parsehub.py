@@ -2,11 +2,12 @@ import csv
 from esd_crawl.items import PDF, DataClassEncoder
 from esd_crawl.tables import TableFinder
 import json
+from scrapy.pipelines.media import MediaPipeline
 
 
 def get_pdf(url: str):
-    fake_info = {}
-    tables = finder.find_tables_from_url(url, fake_info)
+    info = MediaPipeline.SpiderInfo(None)
+    tables = finder.find_tables_from_url(url, info)
 
     return PDF(
         title=entry["report_name"],
