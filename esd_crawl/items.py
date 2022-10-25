@@ -25,6 +25,7 @@ class Table:
 class PDF:
     title: str
     source: str
+    # https://docs.scrapy.org/en/latest/topics/media-pipeline.html#using-the-files-pipeline
     file_urls: list[str]
     tables: list[Table] = field(default_factory=list)
 

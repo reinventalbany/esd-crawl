@@ -1,5 +1,6 @@
 *.csv
 *.json
+*.png
 __pycache__/
 .coverage
 .ipynb_checkpoints/
