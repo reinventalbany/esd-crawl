@@ -1,6 +1,7 @@
 # https://docs.scrapy.org/en/latest/topics/items.html#dataclass-objects
 from dataclasses import asdict, dataclass, field, is_dataclass
 import json
+from urllib.parse import urljoin
 
 
 @dataclass
@@ -26,6 +27,11 @@ class PDF:
     source: str
     file_urls: list[str]
     tables: list[Table] = field(default_factory=list)
+
+    ORIGIN = "https://esd.ny.gov"
+
+    def abs_file_url(self):
+        return urljoin(self.ORIGIN, self.file_urls[0])
 
 
 class DataClassEncoder(json.JSONEncoder):

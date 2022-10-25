@@ -1,3 +1,4 @@
+import pytest
 from esd_crawl.combine import PdfSet
 from esd_crawl.items import PDF, Table
 
@@ -39,3 +40,26 @@ def test_duplicates():
     assert pdf_result["titles"] == {"Test PDF 1", "Test PDF 1 - other"}
     assert pdf_result["sources"] == {"https://foo.com/"}
     assert pdf_result["tables"] == [table1]
+
+
+def test_file_without_urls():
+    pdf_set = PdfSet()
+    pdf = PDF(
+        title="Test PDF",
+        source="https://foo.com/",
+        file_urls=[],
+        tables=[],
+    )
+    with pytest.raises(RuntimeError):
+        pdf_set.add(pdf)
+
+
+def test_make_url_absolute():
+    pdf_set = PdfSet()
+    pdf = PDF(
+        title="Test PDF",
+        source="https://foo.com/",
+        file_urls=["/test1.pdf"],
+        tables=[],
+    )
+    pdf_set.add(pdf)

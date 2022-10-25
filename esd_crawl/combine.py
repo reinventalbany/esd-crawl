@@ -1,23 +1,16 @@
 from esd_crawl.items import PDF
 import json
 
-ORIGIN = "https://esd.ny.gov"
-
 
 class PdfSet:
     def __init__(self):
         self.pdfs = {}
 
     def add(self, pdf: PDF):
-        if len(pdf.file_urls) > 1:
-            raise RuntimeError("PDF has more than one file URL")
+        if len(pdf.file_urls) != 1:
+            raise RuntimeError("PDF should have exactly one file URL")
 
-        url = pdf.file_urls[0]
-
-        if url.startswith("/"):
-            # use absolute URLs
-            url = ORIGIN + url
-
+        url = pdf.abs_file_url()
         if url not in self.pdfs:
             # first time being seen
             self.pdfs[url] = {
