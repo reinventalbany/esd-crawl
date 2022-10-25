@@ -2,7 +2,9 @@ import csv
 from esd_crawl.items import PDF, DataClassEncoder
 from esd_crawl.tables import TableFinder
 import json
+from pdfminer.pdfparser import PDFSyntaxError
 from scrapy.pipelines.media import MediaPipeline
+import sys
 
 
 def get_pdf(url: str):
@@ -27,8 +29,12 @@ with open("parsehub.csv") as file:
 
         # The report will contain links to both PDFs and other pages. The latter will be covered by the sitemap crawl, so we can ignore them here.
         if url.endswith(".pdf"):
-            pdf = get_pdf(url)
-            pdfs.append(pdf)
+            try:
+                pdf = get_pdf(url)
+            except PDFSyntaxError:
+                print("\nPDF could not be processed:", url, file=sys.stderr)
+            else:
+                pdfs.append(pdf)
 
         print(".", end="", flush=True)
 
