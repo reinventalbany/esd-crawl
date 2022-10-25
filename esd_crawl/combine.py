@@ -36,6 +36,14 @@ class PdfSet:
     def len(self):
         return len(self.pdfs.keys())
 
+    def num_pdfs_with_tables(self):
+        pdfs = self.pdfs.values()
+        return sum(1 for pdf in pdfs if len(pdf["tables"]) > 0)
+
+    def num_tables(self):
+        pdfs = self.pdfs.values()
+        return sum(len(pdf["tables"]) for pdf in pdfs)
+
 
 class SetEncoder(json.JSONEncoder):
     """JSON encoder that supports set() objects.
@@ -63,7 +71,10 @@ def run():
     with open(output_file, "w") as file:
         json.dump(pdfs.to_dict(), file, cls=SetEncoder)
 
-    print(f"Wrote {pdfs.len()} PDF records to {output_file}")
+    print(f"Wrote PDF records to {output_file}.")
+    print(f"Number of PDFs: {pdfs.len()}")
+    print(f"Number of PDFs with tables: {pdfs.num_pdfs_with_tables()}")
+    print(f"Number of tables: {pdfs.num_tables()}")
 
 
 if __name__ == "__main__":
