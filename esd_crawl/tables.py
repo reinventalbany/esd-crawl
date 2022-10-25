@@ -20,8 +20,8 @@ def pages_with_tables(path):
 
 
 class TableFinder:
-    def __init__(self):
-        self.store = FSFilesStore("tables")
+    def __init__(self, path="tables"):
+        self.store = FSFilesStore(path)
 
     def persist_img(self, img, info: MediaPipeline.SpiderInfo, extension="png"):
         # based on
