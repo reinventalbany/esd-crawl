@@ -1,26 +1,14 @@
-from responses import RequestsMock
 from esd_crawl.items import Table
 from esd_crawl.tables import TableFinder
-import os
 import pytest
 from scrapy.pipelines.media import MediaPipeline
+from tests.helpers import mock_pdf_download
 from unittest.mock import Mock
 
 
 @pytest.fixture
 def fake_info():
     return Mock(spec=MediaPipeline.SpiderInfo)
-
-
-@pytest.fixture
-def pdf_path():
-    return os.path.join("tests", "NYSTAR-2022-Annual-Report.pdf")
-
-
-def mock_pdf_download(r_mock: RequestsMock, url: str, file_path: str):
-    with open(file_path, "rb") as f:
-        contents = f.read()
-        r_mock.get(url, body=contents, content_type="application/pdf")
 
 
 def assert_tables(tables: list[Table]):
