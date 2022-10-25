@@ -30,3 +30,18 @@ def test_process_report_pdf(r_mock, pdf_path):
     pdf = process_report(finder, report)
     assert pdf is not None
     assert pdf.abs_file_url() == pdf_url
+
+
+def test_process_report_bad_pdf(r_mock):
+    pdf_url = "https://something.gov/report.pdf"
+
+    mock_pdf_download(r_mock, pdf_url, "README.md")
+    finder = TableFinder()
+    report = Report(
+        report_url=pdf_url,
+        report_name="",
+        report_source="https://something.gov/",
+    )
+
+    pdf = process_report(finder, report)
+    assert pdf is None
