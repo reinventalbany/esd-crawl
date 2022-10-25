@@ -56,8 +56,12 @@ def get_pdfs(parsehub_output_csv: str):
 
 def run():
     pdfs = get_pdfs("parsehub.csv")
-    with open("reports.json", "w") as file:
+
+    output_file = "reports.json"
+    with open(output_file, "w") as file:
         json.dump(pdfs, file, cls=DataClassEncoder)
+
+    print(f"Wrote {len(pdfs)} PDF records to {output_file}")
 
 
 if __name__ == "__main__":

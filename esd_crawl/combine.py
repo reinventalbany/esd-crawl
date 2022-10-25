@@ -33,6 +33,9 @@ class PdfSet:
     def to_dict(self):
         return self.pdfs
 
+    def len(self):
+        return len(self.pdfs.keys())
+
 
 class SetEncoder(json.JSONEncoder):
     """JSON encoder that supports set() objects.
@@ -56,8 +59,11 @@ def run():
                 pdf = PDF(**entry)
                 pdfs.add(pdf)
 
-    with open("pdfs.json", "w") as file:
+    output_file = "pdfs.json"
+    with open(output_file, "w") as file:
         json.dump(pdfs.to_dict(), file, cls=SetEncoder)
+
+    print(f"Wrote {pdfs.len()} PDF records to {output_file}")
 
 
 if __name__ == "__main__":
