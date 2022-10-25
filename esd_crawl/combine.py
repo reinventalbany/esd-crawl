@@ -9,7 +9,7 @@ class PdfSet:
     """Collects and combines PDFs"""
 
     def __init__(self):
-        self.pdfs = {}
+        self.pdfs: dict[str, dict] = {}
 
     def add(self, pdf: PDF):
         if len(pdf.file_urls) != 1:
@@ -29,6 +29,12 @@ class PdfSet:
         info["sources"].add(pdf.source)
         # assuming the same tables will be found each time
         info["tables"] = pdf.tables
+
+    def get(self, url: str):
+        return self.pdfs[url]
+
+    def urls(self):
+        return list(self.pdfs.keys())
 
     def to_dict(self):
         return self.pdfs

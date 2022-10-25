@@ -33,13 +33,15 @@ def test_duplicates():
     )
     pdf_set.add(pdf3)
 
-    pdfs = pdf_set.to_dict()
-    assert len(pdfs) == 2
+    assert pdf_set.len() == 2
 
-    pdf_result = pdfs["http://foo.com/test1.pdf"]
+    pdf_result = pdf_set.get("http://foo.com/test1.pdf")
     assert pdf_result["titles"] == {"Test PDF 1", "Test PDF 1 - other"}
     assert pdf_result["sources"] == {"https://foo.com/"}
     assert pdf_result["tables"] == [table1]
+
+    assert pdf_set.num_pdfs_with_tables() == 2
+    assert pdf_set.num_tables() == 2
 
 
 def test_file_without_urls():
@@ -63,3 +65,5 @@ def test_make_url_absolute():
         tables=[],
     )
     pdf_set.add(pdf)
+
+    assert pdf_set.urls() == ["https://esd.ny.gov/test1.pdf"]
