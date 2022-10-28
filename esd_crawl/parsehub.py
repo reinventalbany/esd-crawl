@@ -2,25 +2,11 @@
 
 import csv
 from esd_crawl.items import PDF, DataClassEncoder, Report
+from esd_crawl.parse import get_pdf
 from esd_crawl.tables import TableFinder
 import json
 from pdfminer.pdfparser import PDFSyntaxError
-from scrapy.pipelines.media import MediaPipeline
 import sys
-
-
-def get_pdf(finder: TableFinder, report: Report):
-    url = report.report_url
-
-    info = MediaPipeline.SpiderInfo(None)
-    tables = finder.find_tables_from_url(url, info)
-
-    return PDF(
-        title=report.report_name,
-        source=report.report_source,
-        file_urls=[url],
-        tables=tables,
-    )
 
 
 def process_report(finder: TableFinder, report: Report):

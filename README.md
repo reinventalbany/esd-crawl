@@ -81,10 +81,14 @@ scrapy runspider esd_crawl/spiders/esd.py -s CLOSESPIDER_ITEMCOUNT=5
 ### Test a particular URL
 
 ```sh
-scrapy parse --pipelines <url>
+scrapy parse --pipelines <URL>
+
+# or
+
+python esd_crawl/parse.py <PDF URL>
 ```
 
-[More info on `parse`](https://docs.scrapy.org/en/latest/topics/commands.html#parse), and [general debugging info](https://docs.scrapy.org/en/latest/topics/debug.html).
+[More info on Scrapy's `parse`](https://docs.scrapy.org/en/latest/topics/commands.html#parse), and [general debugging info](https://docs.scrapy.org/en/latest/topics/debug.html).
 
 ### Notebook
 
