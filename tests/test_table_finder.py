@@ -24,11 +24,11 @@ def test_find_tables(fake_info, pdf_path):
     assert_tables(tables)
 
 
-def test_find_tables_from_url(r_mock, fake_info, pdf_path):
+def test_find_tables_url(r_mock, fake_info, pdf_path):
     url = "https://foo.com/bar.pdf"
 
     mock_pdf_download(r_mock, url, pdf_path)
 
     finder = TableFinder()
-    tables = finder.find_tables_from_url(url, fake_info)
+    tables = finder.find_tables(url, fake_info)
     assert_tables(tables)

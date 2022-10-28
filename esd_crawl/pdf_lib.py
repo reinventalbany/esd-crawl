@@ -11,7 +11,7 @@ def get_pdf(report: Report, finder: TableFinder = None):
 
     url = report.report_url
     info = MediaPipeline.SpiderInfo(None)
-    tables = finder.find_tables_from_url(url, info)
+    tables = finder.find_tables(url, info)
 
     return PDF(
         title=report.report_name,

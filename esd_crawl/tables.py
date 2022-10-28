@@ -16,6 +16,11 @@ logging.getLogger("PIL").setLevel(logging.INFO)
 
 
 def pages(path_or_fp: PdfInput):
+    """Pulls the pages from the given PDF as a file path, readable file, or URL."""
+
+    if isinstance(path_or_fp, str) and path_or_fp.startswith("http"):
+        path_or_fp = pdf_from_url(path_or_fp)
+
     with pdfplumber.open(path_or_fp) as pdf:
         for page in pdf.pages:
             yield page
@@ -77,7 +82,3 @@ class TableFinder:
 
         # not exactly sure what the info is used for, but passing it along to be consistent
         return [self.find_table(page, info) for page in pages]
-
-    def find_tables_from_url(self, pdf_url: str, info: MediaPipeline.SpiderInfo):
-        reader = pdf_from_url(pdf_url)
-        return self.find_tables(reader, info)
