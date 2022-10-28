@@ -1,5 +1,6 @@
 """This script counts how many of the downloaded files are scanned PDFs."""
 
+from esd_crawl.formatting import format_pct
 from esd_crawl.pdf_lib import pdf_has_text
 from glob import glob
 import sys
@@ -21,5 +22,5 @@ for filename in glob("downloads/full/*.pdf"):
 
     print(".", end="", flush=True)
 
-pct = round(num_scanned / num_files * 100)
-print(f"\n{num_scanned} of {num_files} PDFs ({pct}%) appear to be scanned.")
+pct = format_pct(num_scanned, num_files)
+print(f"\n{num_scanned} of {num_files} PDFs ({pct}) appear to be scanned.")

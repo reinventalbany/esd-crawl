@@ -1,6 +1,7 @@
 """This is a script for combining the PDF information from Scrapy and Parsehub."""
 
 
+from esd_crawl.formatting import format_num, format_pct
 from esd_crawl.items import PDF
 from esd_crawl.pdf_set import PdfSet
 import json
@@ -18,18 +19,14 @@ class SetEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def format_num(num: int):
-    return "{:,}".format(num)
-
-
 def print_stats(pdfs: PdfSet):
     num_pdfs = pdfs.len()
     print(f"Number of PDFs: {format_num(num_pdfs)}")
 
     num_with_tables = pdfs.num_pdfs_with_tables()
-    pct_with_tables = num_with_tables / num_pdfs * 100
+    pct_with_tables = format_pct(num_with_tables, num_pdfs)
     print(
-        f"Number of PDFs with tables: {format_num(num_with_tables)} ({pct_with_tables:.1f}%)"
+        f"Number of PDFs with tables: {format_num(num_with_tables)} ({pct_with_tables})"
     )
 
     num_tables = pdfs.num_tables()
