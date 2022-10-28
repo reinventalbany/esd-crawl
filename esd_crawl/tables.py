@@ -8,18 +8,20 @@ import requests
 from scrapy.pipelines.files import FSFilesStore
 from scrapy.pipelines.media import MediaPipeline
 
+PdfInput = str | Path | BufferedReader
+
 # these libraries are quite noisy at their DEBUG log level, so override them
 logging.getLogger("pdfminer").setLevel(logging.INFO)
 logging.getLogger("PIL").setLevel(logging.INFO)
 
 
-def pages(path_or_fp: str | Path | BufferedReader):
+def pages(path_or_fp: PdfInput):
     with pdfplumber.open(path_or_fp) as pdf:
         for page in pdf.pages:
             yield page
 
 
-def pages_with_tables(path_or_fp: str | Path | BufferedReader):
+def pages_with_tables(path_or_fp: PdfInput):
     for page in pages(path_or_fp):
         tables = page.find_tables()
         if len(tables) > 0:
@@ -68,7 +70,7 @@ class TableFinder:
 
     def find_tables(
         self,
-        pdf_path_or_fp: str | Path | BufferedReader,
+        pdf_path_or_fp: PdfInput,
         info: MediaPipeline.SpiderInfo,
     ):
         pages = pages_with_tables(pdf_path_or_fp)
