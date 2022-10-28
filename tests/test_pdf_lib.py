@@ -1,5 +1,5 @@
 from esd_crawl.items import Report
-from esd_crawl.parsehub import process_report
+from esd_crawl.pdf_lib import process_report
 from esd_crawl.tables import TableFinder
 from tests.helpers import mock_pdf_download
 

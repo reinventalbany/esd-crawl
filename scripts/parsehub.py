@@ -2,25 +2,10 @@
 
 import csv
 from esd_crawl.items import PDF, DataClassEncoder, Report
-from esd_crawl.parse import get_pdf
+from esd_crawl.pdf_lib import process_report
 from esd_crawl.tables import TableFinder
 import json
-from pdfminer.pdfparser import PDFSyntaxError
 import sys
-
-
-def process_report(finder: TableFinder, report: Report):
-    url = report.report_url
-
-    # The report will contain links to both PDFs and other pages. The latter will be covered by the sitemap crawl, so we can ignore them here.
-    if url.endswith(".pdf"):
-        try:
-            return get_pdf(finder, report)
-        except PDFSyntaxError:
-            print("\nPDF could not be processed:", url, file=sys.stderr)
-            return None
-
-    return None
 
 
 def get_pdfs(parsehub_output_csv: str):

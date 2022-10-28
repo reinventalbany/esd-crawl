@@ -1,5 +1,5 @@
 import pytest
-from esd_crawl.combine import PdfSet
+from esd_crawl.pdf_set import PdfSet
 from esd_crawl.items import PDF, Table
 
 

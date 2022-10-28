@@ -1,7 +1,4 @@
-"""This is a script for uploading PDF and Table information to Airtable."""
-
 from esd_crawl.items import Table
-import json
 import os
 import requests
 
@@ -106,24 +103,3 @@ def upsert_table(key: str, table: Table, img_prefix: str, pdf_id: str):
         return id
 
     return create_record(key, table_name, record)
-
-
-def run():
-    key = os.environ["AIRTABLE_API_KEY"]
-    img_prefix = os.environ["IMG_PREFIX"]
-
-    with open("pdfs.json") as f:
-        pdfs = json.load(f)
-
-    for pdf_url, pdf in pdfs.items():
-        pdf_id = upsert_pdf(key, pdf_url, pdf["titles"])
-
-        for table_data in pdf["tables"]:
-            table = Table(**table_data)
-            table_id = upsert_table(key, table, img_prefix, pdf_id)
-            if table_id:
-                print(".", end="", flush=True)
-
-
-if __name__ == "__main__":
-    run()

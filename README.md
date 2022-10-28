@@ -31,11 +31,11 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Run the Project
    1. Download Data as CSV
    1. Save as `parsehub.csv` in this directory
-   1. Run `python esd_crawl/parsehub.py`
+   1. Run `python scripts/parsehub.py`
 1. Combine the data
 
    ```sh
-   python esd_crawl/combine.py
+   python scripts/combine.py
    ```
 
 1. Put table images somewhere publicly accessible. Example for [Google Cloud Storage](https://cloud.google.com/storage):
@@ -55,7 +55,7 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. Run the script. `IMG_PREFIX` will be the public object URL, minus the filename. Example:
 
       ```sh
-      IMG_PREFIX=https://storage.googleapis.com/esd-data/tables/ python esd_crawl/airtable.py
+      IMG_PREFIX=https://storage.googleapis.com/esd-data/tables/ python scripts/airtable.py
       ```
 
 There will be one row per PDF URL, and multiple titles and source URLs for each will be combined with newlines within each row.
@@ -85,7 +85,7 @@ scrapy parse --pipelines <URL>
 
 # or
 
-python esd_crawl/parse.py <PDF URL>
+python scripts/parse.py <PDF URL>
 ```
 
 [More info on Scrapy's `parse`](https://docs.scrapy.org/en/latest/topics/commands.html#parse), and [general debugging info](https://docs.scrapy.org/en/latest/topics/debug.html).
