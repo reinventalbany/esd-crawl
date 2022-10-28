@@ -96,7 +96,7 @@ def run():
 
     output_file = "pdfs.json"
     with open(output_file, "w") as file:
-        json.dump(pdfs.to_dict(), file, cls=SetEncoder)
+        json.dump(pdfs.to_dict(), file, cls=SetEncoder, indent=2)
 
     print(f"Wrote PDF records to {output_file}.")
     print_stats(pdfs)

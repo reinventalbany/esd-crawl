@@ -59,7 +59,7 @@ def run():
 
     output_file = "reports.json"
     with open(output_file, "w") as file:
-        json.dump(pdfs, file, cls=DataClassEncoder)
+        json.dump(pdfs, file, cls=DataClassEncoder, indent=2)
 
     print(f"Wrote {len(pdfs)} PDF records to {output_file}")
 
