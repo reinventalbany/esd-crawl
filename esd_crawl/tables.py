@@ -13,12 +13,17 @@ logging.getLogger("pdfminer").setLevel(logging.INFO)
 logging.getLogger("PIL").setLevel(logging.INFO)
 
 
-def pages_with_tables(path_or_fp: str | Path | BufferedReader):
+def pages(path_or_fp: str | Path | BufferedReader):
     with pdfplumber.open(path_or_fp) as pdf:
         for page in pdf.pages:
-            tables = page.find_tables()
-            if len(tables) > 0:
-                yield page
+            yield page
+
+
+def pages_with_tables(path_or_fp: str | Path | BufferedReader):
+    for page in pages(path_or_fp):
+        tables = page.find_tables()
+        if len(tables) > 0:
+            yield page
 
 
 class TableFinder:
