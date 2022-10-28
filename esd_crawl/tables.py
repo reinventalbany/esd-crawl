@@ -26,6 +26,14 @@ def pages_with_tables(path_or_fp: str | Path | BufferedReader):
             yield page
 
 
+def pdf_from_url(url: str):
+    response = requests.get(url)
+
+    # convert to the necessary type
+    b_io = BytesIO(response.content)
+    return BufferedReader(b_io)  # type: ignore
+
+
 class TableFinder:
     def __init__(self, path="tables"):
         self.store = FSFilesStore(path)
@@ -69,10 +77,5 @@ class TableFinder:
         return [self.find_table(page, info) for page in pages]
 
     def find_tables_from_url(self, pdf_url: str, info: MediaPipeline.SpiderInfo):
-        response = requests.get(pdf_url)
-
-        # convert to the necessary type
-        b_io = BytesIO(response.content)
-        reader = BufferedReader(b_io)  # type: ignore
-
+        reader = pdf_from_url(pdf_url)
         return self.find_tables(reader, info)

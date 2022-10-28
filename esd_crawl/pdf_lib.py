@@ -1,5 +1,5 @@
 from esd_crawl.items import PDF, Report
-from esd_crawl.tables import TableFinder
+from esd_crawl.tables import TableFinder, pages, pdf_from_url
 from pdfminer.pdfparser import PDFSyntaxError
 from scrapy.pipelines.media import MediaPipeline
 import sys
@@ -33,3 +33,13 @@ def process_report(finder: TableFinder, report: Report):
             return None
 
     return None
+
+
+def page_has_text(page):
+    text = page.extract_text()
+    return text.strip() != ""
+
+
+def pdf_has_text(url):
+    reader = pdf_from_url(url)
+    return any(page_has_text(page) for page in pages(reader))
