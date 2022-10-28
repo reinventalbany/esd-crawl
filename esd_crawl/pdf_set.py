@@ -1,5 +1,4 @@
 from esd_crawl.items import PDF
-import json
 
 
 class PdfSet:

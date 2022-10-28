@@ -5,7 +5,6 @@ from esd_crawl.items import PDF, DataClassEncoder, Report
 from esd_crawl.pdf_lib import process_report
 from esd_crawl.tables import TableFinder
 import json
-import sys
 
 
 def get_pdfs(parsehub_output_csv: str):
