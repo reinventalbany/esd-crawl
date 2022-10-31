@@ -32,10 +32,8 @@ Technologies:
    1. Run the spider. This will take a few minutes.
 
       ```sh
-      scrapy runspider esd_crawl/spiders/esd.py -L INFO -O scrapy.json
+      scrapy runspider esd_crawl/spiders/esd.py -L INFO -O results/scrapy.json
       ```
-
-   1. View the list of discovered PDFs in `scrapy.json`. Note there will be duplicate URLs present.
 
 1. Crawl [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516)
 
@@ -43,7 +41,7 @@ Technologies:
    1. [Import](https://help.parsehub.com/hc/en-us/articles/115001733294-Export-Import-Projects) the Project, which is the `esd.ny.gov_Project.phj` file in this directory
    1. Run the Project
    1. Download Data as CSV
-   1. Save as `parsehub.csv` in this directory
+   1. Save as `results/parsehub.csv`
    1. Fetch and parse the PDFs:
 
       ```sh

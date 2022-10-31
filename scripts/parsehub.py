@@ -5,6 +5,7 @@ from esd_crawl.items import PDF, DataClassEncoder, Report
 from esd_crawl.pdf_lib import process_report
 from esd_crawl.tables import TableFinder
 import json
+import os
 
 
 def get_pdfs(parsehub_output_csv: str):
@@ -25,9 +26,9 @@ def get_pdfs(parsehub_output_csv: str):
 
 
 def run():
-    pdfs = get_pdfs("parsehub.csv")
+    pdfs = get_pdfs(os.path.join("results", "parsehub.csv"))
 
-    output_file = "reports.json"
+    output_file = os.path.join("results", "reports.json")
     with open(output_file, "w") as file:
         json.dump(pdfs, file, cls=DataClassEncoder, indent=2)
 

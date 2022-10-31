@@ -5,6 +5,7 @@ from esd_crawl.formatting import format_num, format_pct
 from esd_crawl.items import PDF
 from esd_crawl.pdf_set import PdfSet
 import json
+import os
 
 
 class SetEncoder(json.JSONEncoder):
@@ -39,14 +40,15 @@ def print_stats(pdfs: PdfSet):
 def run():
     pdfs = PdfSet()
 
-    for data_path in ["scrapy.json", "reports.json"]:
+    for filename in ["scrapy.json", "reports.json"]:
+        data_path = os.path.join("results", filename)
         with open(data_path) as file:
             data = json.load(file)
             for entry in data:
                 pdf = PDF(**entry)
                 pdfs.add(pdf)
 
-    output_file = "pdfs.json"
+    output_file = os.path.join("results", "pdfs.json")
     with open(output_file, "w") as file:
         json.dump(pdfs.to_dict(), file, cls=SetEncoder, indent=2)
 

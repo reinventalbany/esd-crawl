@@ -9,7 +9,7 @@ import os
 key = os.environ["AIRTABLE_API_KEY"]
 img_prefix = os.environ["IMG_PREFIX"]
 
-with open("pdfs.json") as f:
+with open(os.path.join("results", "pdfs.json")) as f:
     pdfs = json.load(f)
 
 for pdf_url, pdf in pdfs.items():
