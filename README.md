@@ -4,9 +4,19 @@ The goal of this tool is to find data on the [Empire State Development website](
 
 ## Technical overview
 
-The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516) is done via [ParseHub](https://parsehub.com/), as that was easier to get working for the AJAX pagination.
+The general steps of the workflow are:
 
-Once the tables are identified, results can be uploaded to Airtable for review.
+1. Find PDFs throughout the site
+1. Parse PDFs to find tables
+1. Combine and de-duplicate the findings
+1. Upload findings to Airtable for review
+
+Technologies:
+
+- The site-wide crawl is done via [Scrapy](https://scrapy.org/).
+- The crawl of the [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516) is done via [ParseHub](https://parsehub.com/), as that was easier to get working for the (AJAX) pagination.
+- Table identification is done via [pdfplumber](https://github.com/jsvine/pdfplumber).
+- Review of the identified tables is done via [Airtable](https://airtable.com/), as [an Interface](https://airtable.com/appdrqXSd2JNXkLp7/pag9j6GVdas1Xwayr?6bnb0=recaUXHnYswGGKKjI) could be built without .
 
 ## Usage
 
@@ -65,6 +75,9 @@ Once the tables are identified, results can be uploaded to Airtable for review.
       ```sh
       IMG_PREFIX=https://storage.googleapis.com/esd-data/tables/ python scripts/airtable.py
       ```
+
+1. Triage records through [the Airtable interface](https://airtable.com/appdrqXSd2JNXkLp7/pag9j6GVdas1Xwayr) to be built without code.
+1. Review ["kept" Tables](https://airtable.com/appdrqXSd2JNXkLp7/tblCqLOhNnkhJvc6z/viwWkwJ2Har1m6xA1?blocks=hide).
 
 ### Syncing to Google Cloud Storage
 
