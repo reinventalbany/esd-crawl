@@ -6,9 +6,11 @@ The goal of this tool is to find data on the [Empire State Development website](
 
 The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516) is done via [ParseHub](https://parsehub.com/), as that was easier to get working for the AJAX pagination.
 
+Once the tables are identified, results can be uploaded to Airtable for review.
+
 ## Usage
 
-1. Crawl HTML pages
+1. Crawl server-rendered pages
 
    1. Install dependencies
       - Python 3
@@ -26,13 +28,19 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
    1. View the list of discovered PDFs in `scrapy.json`. Note there will be duplicate URLs present.
 
 1. Crawl [Reports page](https://esd.ny.gov/esd-media-center/reports?tid[0]=516)
+
    1. Install [ParseHub](https://parsehub.com/)
    1. [Import](https://help.parsehub.com/hc/en-us/articles/115001733294-Export-Import-Projects) the Project, which is the `esd.ny.gov_Project.phj` file in this directory
    1. Run the Project
    1. Download Data as CSV
    1. Save as `parsehub.csv` in this directory
-   1. Run `python scripts/parsehub.py`
-1. Combine the data
+   1. Fetch and parse the PDFs:
+
+      ```sh
+      python scripts/parsehub.py
+      ```
+
+1. Combine the data from Scrapy and ParseHub
 
    ```sh
    python scripts/combine.py
@@ -57,8 +65,6 @@ The site-wide crawl is done via [Scrapy](https://scrapy.org/). The crawl of the 
       ```sh
       IMG_PREFIX=https://storage.googleapis.com/esd-data/tables/ python scripts/airtable.py
       ```
-
-There will be one row per PDF URL, and multiple titles and source URLs for each will be combined with newlines within each row.
 
 ### Syncing to Google Cloud Storage
 
