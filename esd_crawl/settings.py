@@ -58,12 +58,6 @@ USER_AGENT = "esd_crawl (+https://github.com/reinventalbany/esd-crawl)"
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
 EXTENSIONS = {"scrapy.extensions.closespider.CloseSpider": 500}
 
-# Configure item pipelines
-# See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# https://docs.scrapy.org/en/latest/topics/media-pipeline.html#enabling-your-media-pipeline
-ITEM_PIPELINES = {"esd_crawl.pipelines.FindTablePipeline": 300}
-FILES_STORE = "downloads"
-
 # https://docs.scrapy.org/en/latest/topics/request-response.html#request-fingerprinter-implementation
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 
