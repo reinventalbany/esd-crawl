@@ -20,6 +20,8 @@ Technologies:
 
 ## Usage
 
+### Tables in PDFs
+
 1. Crawl server-rendered pages
 
    1. Install dependencies
@@ -77,12 +79,18 @@ Technologies:
 1. Triage records through [the Airtable interface](https://airtable.com/appdrqXSd2JNXkLp7/pag9j6GVdas1Xwayr) to be built without code.
 1. Review ["kept" Tables](https://airtable.com/appdrqXSd2JNXkLp7/tblCqLOhNnkhJvc6z/viwWkwJ2Har1m6xA1?blocks=hide).
 
-### Syncing to Google Cloud Storage
+#### Syncing to Google Cloud Storage
 
 Example, using [`gsutil`](https://cloud.google.com/storage/docs/gsutil):
 
 ```sh
 gsutil -m rsync -r tables gs://esd-data/tables
+```
+
+## Broken links to PDFs
+
+```sh
+scrapy runspider esd_crawl/spiders/broken.py -L INFO -O broken.jsonl
 ```
 
 ## Troubleshooting
