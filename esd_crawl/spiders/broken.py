@@ -1,6 +1,6 @@
 from esd_crawl.items import BrokenLink
 from urllib.parse import urlparse
-from scrapy.http import Response
+from scrapy.http import Response, HtmlResponse
 
 # from scrapy.spiders import SitemapSpider
 from scrapy.spiders import Spider
@@ -32,7 +32,7 @@ def process_response(response: Response):
             yield BrokenLink(url=response.url)
         return
 
-    if response.headers["Content-Type"] == b"text/html":
+    if isinstance(response, HtmlResponse):
         # find links to PDFs
         for link in response.css('a[href$=".pdf"]'):
             url = link.css("::attr(href)").get()

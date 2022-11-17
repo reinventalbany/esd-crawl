@@ -1,4 +1,5 @@
 from esd_crawl.spiders.broken import process_response
+import pytest
 from scrapy.http import Request, HtmlResponse, Response
 
 
@@ -30,7 +31,8 @@ def test_http_no_links():
     assert items == []
 
 
-def test_http_pdf_link():
+@pytest.mark.parametrize("mime_type", ["text/html", "text/html; charset=utf-8"])
+def test_http_pdf_link(mime_type):
     end_url = "https://esd.ny.gov"
     pdf_url = "https://esd.ny.gov/Reports/2015_2016/03312016_EXCELSIORJOBSPROGRAMQUARTERLYREPORT.pdf"
     body = html(f"""<a href="{pdf_url}">PDF</a>""")
@@ -39,7 +41,7 @@ def test_http_pdf_link():
     response = HtmlResponse(
         url=end_url,
         status=200,
-        headers={"Content-Type": "text/html"},
+        headers={"Content-Type": mime_type},
         body=body,
         request=request,
     )
