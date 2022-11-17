@@ -62,4 +62,5 @@ class BrokenSpider(Spider):
     handle_httpstatus_list = [404]
 
     def parse(self, response: Response):
-        process_response(response)
+        for item in process_response(response):
+            yield item
