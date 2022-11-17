@@ -4,6 +4,7 @@ from scrapy.http import Response, HtmlResponse
 from scrapy.spiders import SitemapSpider
 
 DOMAIN = "esd.ny.gov"
+HTTP_ERROR_CODE_RANGE = range(400, 500)
 
 
 def is_pdf_url(url: str):
@@ -11,7 +12,7 @@ def is_pdf_url(url: str):
 
 
 def is_pdf(response: Response):
-    return response.headers["Content-Type"] == b"application/pdf" or is_pdf_url(
+    return response.headers.get("Content-Type") == b"application/pdf" or is_pdf_url(
         response.url
     )
 
@@ -38,8 +39,8 @@ def process_response(response: Response):
         ) or response.url == source:
             yield BrokenLink(url=initial_url, source=source)
 
-    # handle PDF 404s, just in case
-    if response.status == 404:
+    # handle PDF 40x errors
+    if response.status in HTTP_ERROR_CODE_RANGE:
         if is_pdf(response):
             source = referer(response)
             yield BrokenLink(url=response.url, source=source)
@@ -60,8 +61,10 @@ class BrokenSpider(SitemapSpider):
     name = "broken"
     allowed_domains = [DOMAIN]
     sitemap_urls = [f"https://{DOMAIN}/sitemap.xml"]
+
     # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#module-scrapy.spidermiddlewares.httperror
-    handle_httpstatus_list = [404]
+    # not all of these are valid status codes, but that's ok
+    handle_httpstatus_list = list(HTTP_ERROR_CODE_RANGE)
 
     # keep the referer, even for redirects through HTTP
     # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#acceptable-values-for-referrer-policy
