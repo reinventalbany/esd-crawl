@@ -90,7 +90,7 @@ gsutil -m rsync -r tables gs://esd-data/tables
 ## Broken links to PDFs
 
 ```sh
-scrapy runspider esd_crawl/spiders/broken.py -L INFO -O results/broken.json
+scrapy runspider esd_crawl/spiders/broken.py -L INFO -O results/broken.csv
 ```
 
 ## Troubleshooting
