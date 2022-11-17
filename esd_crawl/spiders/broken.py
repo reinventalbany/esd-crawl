@@ -5,10 +5,14 @@ from urllib.parse import urlparse
 from scrapy.spiders import Spider
 
 
+def is_pdf_url(url: str):
+    return urlparse(url).path.endswith(".pdf")
+
+
 def is_pdf(response):
-    return response.headers["Content-Type"] == b"application/pdf" or urlparse(
+    return response.headers["Content-Type"] == b"application/pdf" or is_pdf_url(
         response.url
-    ).path.endswith(".pdf")
+    )
 
 
 # class BrokenSpider(SitemapSpider):
@@ -38,11 +42,11 @@ class BrokenSpider(Spider):
             redirects = response.request.meta.get("redirect_urls")
             if redirects:
                 initial_url = redirects[0]
-                if initial_url.endswith(".pdf"):
+                if is_pdf_url(initial_url):
                     yield BrokenLink(url=initial_url)
 
-        if is_pdf(response):
-            if response.status == 404:
+        if response.status == 404:
+            if is_pdf(response):
                 yield BrokenLink(url=response.url)
             return
 
