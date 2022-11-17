@@ -47,6 +47,7 @@ class Report:
 class BrokenLink:
     url: str
     source: str
+    reason: str
 
 
 class DataClassEncoder(json.JSONEncoder):

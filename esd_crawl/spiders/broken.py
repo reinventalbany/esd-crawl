@@ -22,9 +22,11 @@ def referer(response: Response):
     return ref.decode("utf-8") if ref else None
 
 
-def is_homepage(url: str):
+def is_catch_all_page(url: str):
+    """esd.ny.gov seems to have certain pages that many PDFs redirect to, and thus they should be considered broken links."""
+
     url_obj = urlparse(url)
-    return bool(url_obj.hostname == DOMAIN and url_obj.path in ["", "/"])
+    return url_obj.hostname == DOMAIN and url_obj.path in ["", "/", "/corporate-info"]
 
 
 def process_response(response: Response):
@@ -33,17 +35,17 @@ def process_response(response: Response):
     if redirects:
         initial_url = redirects[0]
         source = referer(response)
-        # TODO normalize URL for latter
-        if (
-            is_pdf_url(initial_url) and is_homepage(response.url)
-        ) or response.url == source:
-            yield BrokenLink(url=initial_url, source=source)
+        if is_pdf_url(initial_url) and is_catch_all_page(response.url):
+            yield BrokenLink(url=initial_url, source=source, reason="catch-all")
+        # TODO normalize URL
+        elif response.url == source:
+            yield BrokenLink(url=initial_url, source=source, reason="circular-redirect")
 
     # handle PDF 40x errors
     if response.status in HTTP_ERROR_CODE_RANGE:
         if is_pdf(response):
             source = referer(response)
-            yield BrokenLink(url=response.url, source=source)
+            yield BrokenLink(url=response.url, source=source, reason="404")
         return
 
     if isinstance(response, HtmlResponse):
