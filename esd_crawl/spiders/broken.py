@@ -4,21 +4,20 @@ from urllib.parse import urlparse
 from scrapy.spiders import Spider
 
 
-# class BrokenSpider(SitemapSpider):
-#     name = "brokenspider"
-#     allowed_domains = ["esd.ny.gov"]
-#     sitemap_urls = ["https://esd.ny.gov/sitemap.xml"]
-
-
 def is_pdf(response):
     return response.headers["Content-Type"] == b"application/pdf" or urlparse(
         response.url
     ).path.endswith(".pdf")
 
 
+# class BrokenSpider(SitemapSpider):
+#     name = "brokenspider"
+#     allowed_domains = ["esd.ny.gov"]
+#     sitemap_urls = ["https://esd.ny.gov/sitemap.xml"]
 class BrokenSpider(Spider):
     name = "broken"
     start_urls = [
+        "https://esd.ny.gov",
         "https://esd.ny.gov/12312015-excelsior-jobs-program-quarterly-report",
         "https://esd.ny.gov/broken.html",
         "https://esd.ny.gov/broken.pdf",
@@ -32,6 +31,14 @@ class BrokenSpider(Spider):
 
     def parse(self, response):
         print("RESPONSE:", response)
+
+        # broken PDF URLs redirect to the homepage
+        if response.url == "https://esd.ny.gov":
+            redirects = response.request.meta.get("redirect_urls")
+            if redirects:
+                initial_url = redirects[0]
+                if initial_url.endswith(".pdf"):
+                    yield {"url": initial_url}
 
         if is_pdf(response):
             if response.status == 404:
