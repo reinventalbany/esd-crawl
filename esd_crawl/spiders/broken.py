@@ -32,7 +32,8 @@ def process_response(response: Response):
         # find links to PDFs
         for link in response.css('a[href$=".pdf"]'):
             url = link.css("::attr(href)").get()
-            yield response.follow(url)
+            # no need to download the PDF
+            yield response.follow(url, method="HEAD")
 
         # for next_page in response.css("a[href]::attr(href)").extract():
         #     yield response.follow(next_page, self.parse)
