@@ -16,6 +16,10 @@ def is_pdf(response: Response):
     )
 
 
+def referer(response: Response) -> str:
+    return response.request.headers.get("referer").decode("utf-8")
+
+
 def process_response(response: Response):
     # broken PDF URLs redirect to the homepage
     url = urlparse(response.url)
@@ -24,11 +28,13 @@ def process_response(response: Response):
         if redirects:
             initial_url = redirects[0]
             if is_pdf_url(initial_url):
-                yield BrokenLink(url=initial_url)
+                source = referer(response)
+                yield BrokenLink(url=initial_url, source=source)
 
     if response.status == 404:
         if is_pdf(response):
-            yield BrokenLink(url=response.url)
+            source = referer(response)
+            yield BrokenLink(url=response.url, source=source)
         return
 
     if isinstance(response, HtmlResponse):

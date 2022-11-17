@@ -54,7 +54,7 @@ def test_http_pdf_link(mime_type):
 def test_pdf_404():
     url = "https://esd.ny.gov/broken.pdf"
 
-    request = Request(url=url)
+    request = Request(url=url, headers={"Referer": "https://esd.ny.gov/some.html"})
     response = Response(
         url=url,
         status=404,
@@ -71,12 +71,14 @@ def test_pdf_404():
 def test_pdf_redirect_to_homepage():
     # arbitrary file
     file = open("tests/NYSTAR-2022-Annual-Report.pdf", "rb").read()
+    source_url = "https://esd.ny.gov/some.html"
     pdf_url = "https://esd.ny.gov/some.pdf"
     end_url = "https://esd.ny.gov"
 
     request = Request(
         url=end_url,
         meta={"redirect_urls": [pdf_url]},
+        headers={"Referer": source_url},
     )
     response = Response(
         url=end_url,
@@ -88,4 +90,6 @@ def test_pdf_redirect_to_homepage():
 
     items = list(process_response(response))
     assert len(items) == 1
-    assert items[0].url == pdf_url
+    item = items[0]
+    assert item.url == pdf_url
+    assert item.source == source_url
