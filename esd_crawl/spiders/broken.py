@@ -16,8 +16,9 @@ def is_pdf(response: Response):
     )
 
 
-def referer(response: Response) -> str:
-    return response.request.headers.get("referer").decode("utf-8")
+def referer(response: Response):
+    ref: bytes | None = response.request.headers.get("referer")
+    return ref.decode("utf-8") if ref else None
 
 
 def is_homepage(url: str):
@@ -26,14 +27,17 @@ def is_homepage(url: str):
 
 
 def process_response(response: Response):
-    # broken PDF URLs redirect to the homepage
-    if is_homepage(response.url):
-        redirects: list[str] | None = response.request.meta.get("redirect_urls")
-        if redirects:
-            initial_url = redirects[0]
-            if is_pdf_url(initial_url):
-                source = referer(response)
-                yield BrokenLink(url=initial_url, source=source)
+    redirects: list[str] | None = response.request.meta.get("redirect_urls")
+    if redirects:
+        initial_url = redirects[0]
+        source = referer(response)
+
+        # check for PDF URLs that redirect to the homepage, or to the page that linked to them
+        # TODO normalize URL for latter
+        if (
+            is_pdf_url(initial_url) and is_homepage(response.url)
+        ) or response.url == source:
+            yield BrokenLink(url=initial_url, source=source)
 
     # handle PDF 404s, just in case
     if response.status == 404:

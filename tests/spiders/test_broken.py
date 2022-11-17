@@ -90,3 +90,26 @@ def test_pdf_redirect_to_homepage():
     item = items[0]
     assert item.url == pdf_url
     assert item.source == source_url
+
+
+def test_circular_pdf_redirect():
+    source_url = "https://esd.ny.gov/some.html"
+    pdf_url = "https://esd.ny.gov/some.pdf"
+
+    request = Request(
+        url=source_url,
+        meta={"redirect_urls": [pdf_url]},
+        headers={"Referer": source_url},
+    )
+    response = Response(
+        url=source_url,
+        status=200,
+        headers={"Content-Type": "application/pdf"},
+        request=request,
+    )
+
+    items = list(process_response(response))
+    assert len(items) == 1
+    item = items[0]
+    assert item.url == pdf_url
+    assert item.source == source_url
