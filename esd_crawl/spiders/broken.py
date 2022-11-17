@@ -20,17 +20,22 @@ def referer(response: Response) -> str:
     return response.request.headers.get("referer").decode("utf-8")
 
 
+def is_homepage(url: str):
+    url_obj = urlparse(url)
+    return bool(url_obj.hostname == DOMAIN and url_obj.path in ["", "/"])
+
+
 def process_response(response: Response):
     # broken PDF URLs redirect to the homepage
-    url = urlparse(response.url)
-    if url.hostname == DOMAIN and url.path in ["", "/"]:
-        redirects = response.request.meta.get("redirect_urls")
+    if is_homepage(response.url):
+        redirects: list[str] | None = response.request.meta.get("redirect_urls")
         if redirects:
             initial_url = redirects[0]
             if is_pdf_url(initial_url):
                 source = referer(response)
                 yield BrokenLink(url=initial_url, source=source)
 
+    # handle PDF 404s, just in case
     if response.status == 404:
         if is_pdf(response):
             source = referer(response)

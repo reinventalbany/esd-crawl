@@ -69,8 +69,6 @@ def test_pdf_404():
 
 
 def test_pdf_redirect_to_homepage():
-    # arbitrary file
-    file = open("tests/NYSTAR-2022-Annual-Report.pdf", "rb").read()
     source_url = "https://esd.ny.gov/some.html"
     pdf_url = "https://esd.ny.gov/some.pdf"
     end_url = "https://esd.ny.gov"
@@ -84,7 +82,6 @@ def test_pdf_redirect_to_homepage():
         url=end_url,
         status=200,
         headers={"Content-Type": "application/pdf"},
-        body=file,
         request=request,
     )
 
