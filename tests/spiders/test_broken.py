@@ -1,4 +1,4 @@
-from esd_crawl.spiders.broken import process_response
+from esd_crawl.spiders.broken import process_html, process_pdf
 import pytest
 from scrapy.http import Request, HtmlResponse, Response
 
@@ -27,7 +27,7 @@ def test_http_no_links():
         request=request,
     )
 
-    items = list(process_response(response))
+    items = list(process_html(response))
     assert items == []
 
 
@@ -47,7 +47,7 @@ def test_http_pdf_link(mime_type):
         request=request,
     )
 
-    items = list(process_response(response))
+    items = list(process_html(response))
     assert len(items) == 1
     pdf_request = items[0]
     assert pdf_request.url == pdf_url
@@ -70,7 +70,7 @@ def test_pdf_404():
         request=request,
     )
 
-    items = list(process_response(response))
+    items = list(process_pdf(response))
     assert len(items) == 1
     assert items[0].url == url
 
@@ -92,7 +92,7 @@ def test_pdf_redirect_to_homepage():
         request=request,
     )
 
-    items = list(process_response(response))
+    items = list(process_pdf(response))
     assert len(items) == 1
     item = items[0]
     assert item.url == pdf_url
@@ -115,7 +115,7 @@ def test_circular_pdf_redirect():
         request=request,
     )
 
-    items = list(process_response(response))
+    items = list(process_pdf(response))
     assert len(items) == 1
     item = items[0]
     assert item.url == pdf_url
