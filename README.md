@@ -106,7 +106,7 @@ scrapy runspider esd_crawl/spiders/esd.py -s CLOSESPIDER_ITEMCOUNT=5
 ### Test a particular URL
 
 ```sh
-scrapy parse --pipelines <URL>
+scrapy parse --pipelines --spider <spider> <URL>
 
 # or
 

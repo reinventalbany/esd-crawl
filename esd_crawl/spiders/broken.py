@@ -50,8 +50,15 @@ def process_response(response: Response):
         # find links to PDFs
         for link in response.css('a[href$=".pdf"]'):
             url = link.css("::attr(href)").get()
-            # no need to download the PDF
-            yield response.follow(url, method="HEAD")
+
+            yield response.follow(
+                url,
+                # no need to download the PDF
+                method="HEAD",
+                # allow for redirects to the same page
+                # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
+                dont_filter=True,
+            )
 
         # for next_page in response.css("a[href]::attr(href)").extract():
         #     yield response.follow(next_page, self.parse)
