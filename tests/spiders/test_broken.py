@@ -16,12 +16,14 @@ def html(body=""):
 
 def test_http_no_links():
     url = "https://esd.ny.gov"
+
+    request = Request(url=url)
     response = HtmlResponse(
         url=url,
         status=200,
         headers={"Content-Type": "text/html"},
         body=html(),
-        request=Request(url=url),
+        request=request,
     )
 
     items = list(process_response(response))
@@ -33,17 +35,35 @@ def test_http_pdf_link():
     pdf_url = "https://esd.ny.gov/Reports/2015_2016/03312016_EXCELSIORJOBSPROGRAMQUARTERLYREPORT.pdf"
     body = html(f"""<a href="{pdf_url}">PDF</a>""")
 
+    request = Request(url=end_url)
     response = HtmlResponse(
         url=end_url,
         status=200,
         headers={"Content-Type": "text/html"},
         body=body,
-        request=Request(url=end_url),
+        request=request,
     )
 
     items = list(process_response(response))
     assert len(items) == 1
     assert items[0].url == pdf_url
+
+
+def test_pdf_404():
+    url = "https://esd.ny.gov/broken.pdf"
+
+    request = Request(url=url)
+    response = Response(
+        url=url,
+        status=404,
+        headers={"Content-Type": "application/html"},
+        body=b"not found",
+        request=request,
+    )
+
+    items = list(process_response(response))
+    assert len(items) == 1
+    assert items[0].url == url
 
 
 def test_pdf_redirect_to_homepage():
