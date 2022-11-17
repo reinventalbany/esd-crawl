@@ -47,6 +47,7 @@ class Report:
 class BrokenLink:
     url: str
     source: str
+    title: str
     reason: str
 
 

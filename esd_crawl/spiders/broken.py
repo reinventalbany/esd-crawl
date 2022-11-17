@@ -30,27 +30,33 @@ def is_catch_all_page(url: str):
 
 
 def process_response(response: Response):
+    title = response.request.meta.get("title")
+    source = referer(response)
+
     # check for PDF URLs that redirect to the homepage, or to the page that linked to them
     redirects: list[str] | None = response.request.meta.get("redirect_urls")
     if redirects:
         initial_url = redirects[0]
-        source = referer(response)
         if is_pdf_url(initial_url) and is_catch_all_page(response.url):
-            yield BrokenLink(url=initial_url, source=source, reason="catch-all")
+            yield BrokenLink(
+                url=initial_url, source=source, title=title, reason="catch-all"
+            )
         # TODO normalize URL
         elif response.url == source:
-            yield BrokenLink(url=initial_url, source=source, reason="circular-redirect")
+            yield BrokenLink(
+                url=initial_url, source=source, title=title, reason="circular-redirect"
+            )
 
     # handle PDF 40x errors
     if response.status in HTTP_ERROR_CODE_RANGE:
         if is_pdf(response):
-            source = referer(response)
-            yield BrokenLink(url=response.url, source=source, reason="404")
+            yield BrokenLink(url=response.url, source=source, title=title, reason="404")
         return
 
     if isinstance(response, HtmlResponse):
         # find links to PDFs
         for link in response.css('a[href$=".pdf"]'):
+            title = link.css("::text").get()
             url = link.css("::attr(href)").get()
 
             yield response.follow(
@@ -60,6 +66,7 @@ def process_response(response: Response):
                 # allow for redirects to the same page
                 # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
                 dont_filter=True,
+                meta={"title": title},
             )
 
         # for next_page in response.css("a[href]::attr(href)").extract():
