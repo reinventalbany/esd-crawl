@@ -7,6 +7,14 @@ class ESDSpider(SitemapSpider):
     allowed_domains = ["esd.ny.gov"]
     sitemap_urls = ["https://esd.ny.gov/sitemap.xml"]
 
+    # Configure item pipelines
+    # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+    # https://docs.scrapy.org/en/latest/topics/media-pipeline.html#enabling-your-media-pipeline
+    custom_settings = {
+        "ITEM_PIPELINES": {"esd_crawl.pipelines.FindTablePipeline": 300},
+        "FILES_STORE": "downloads",
+    }
+
     def parse(self, response):
         # find links to PDFs
         for link in response.css('a[href$=".pdf"]'):

@@ -43,6 +43,14 @@ class Report:
     report_source: str
 
 
+@dataclass
+class BrokenLink:
+    url: str
+    source: str
+    title: str
+    reason: str
+
+
 class DataClassEncoder(json.JSONEncoder):
     def default(self, obj):
         if is_dataclass(obj):
