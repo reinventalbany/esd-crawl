@@ -1,3 +1,4 @@
+from esd_crawl.items import BrokenLink
 from urllib.parse import urlparse
 
 # from scrapy.spiders import SitemapSpider
@@ -38,12 +39,11 @@ class BrokenSpider(Spider):
             if redirects:
                 initial_url = redirects[0]
                 if initial_url.endswith(".pdf"):
-                    yield {"url": initial_url}
+                    yield BrokenLink(url=initial_url)
 
         if is_pdf(response):
             if response.status == 404:
-                # broken link to a PDF
-                yield {"url": response.url}
+                yield BrokenLink(url=response.url)
             return
 
         # find links to PDFs
