@@ -27,12 +27,11 @@ def is_homepage(url: str):
 
 
 def process_response(response: Response):
+    # check for PDF URLs that redirect to the homepage, or to the page that linked to them
     redirects: list[str] | None = response.request.meta.get("redirect_urls")
     if redirects:
         initial_url = redirects[0]
         source = referer(response)
-
-        # check for PDF URLs that redirect to the homepage, or to the page that linked to them
         # TODO normalize URL for latter
         if (
             is_pdf_url(initial_url) and is_homepage(response.url)
@@ -63,6 +62,10 @@ class BrokenSpider(SitemapSpider):
     sitemap_urls = [f"https://{DOMAIN}/sitemap.xml"]
     # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#module-scrapy.spidermiddlewares.httperror
     handle_httpstatus_list = [404]
+
+    # keep the referer, even for redirects through HTTP
+    # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#acceptable-values-for-referrer-policy
+    custom_settings = {"REFERRER_POLICY": "unsafe-url"}
 
     def parse(self, response: Response):
         for item in process_response(response):

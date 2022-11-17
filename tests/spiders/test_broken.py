@@ -33,13 +33,13 @@ def test_http_no_links():
 
 @pytest.mark.parametrize("mime_type", ["text/html", "text/html; charset=utf-8"])
 def test_http_pdf_link(mime_type):
-    end_url = "https://esd.ny.gov"
+    page_url = "https://esd.ny.gov"
     pdf_url = "https://esd.ny.gov/Reports/2015_2016/03312016_EXCELSIORJOBSPROGRAMQUARTERLYREPORT.pdf"
     body = html(f"""<a href="{pdf_url}">PDF</a>""")
 
-    request = Request(url=end_url)
+    request = Request(url=page_url)
     response = HtmlResponse(
-        url=end_url,
+        url=page_url,
         status=200,
         headers={"Content-Type": mime_type},
         body=body,
@@ -48,7 +48,10 @@ def test_http_pdf_link(mime_type):
 
     items = list(process_response(response))
     assert len(items) == 1
-    assert items[0].url == pdf_url
+    request = items[0]
+    assert request.url == pdf_url
+    referer = request.headers["referer"].decode("utf-8")
+    assert referer == page_url
 
 
 def test_pdf_404():
