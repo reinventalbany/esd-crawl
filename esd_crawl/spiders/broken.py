@@ -3,6 +3,8 @@ from urllib.parse import urlparse
 from scrapy.http import Response, HtmlResponse
 from scrapy.spiders import SitemapSpider
 
+DOMAIN = "esd.ny.gov"
+
 
 def is_pdf_url(url: str):
     return urlparse(url).path.endswith(".pdf")
@@ -16,7 +18,8 @@ def is_pdf(response: Response):
 
 def process_response(response: Response):
     # broken PDF URLs redirect to the homepage
-    if response.url == "https://esd.ny.gov":
+    url = urlparse(response.url)
+    if url.hostname == DOMAIN and url.path in ["", "/"]:
         redirects = response.request.meta.get("redirect_urls")
         if redirects:
             initial_url = redirects[0]
@@ -41,8 +44,8 @@ def process_response(response: Response):
 
 class BrokenSpider(SitemapSpider):
     name = "broken"
-    allowed_domains = ["esd.ny.gov"]
-    sitemap_urls = ["https://esd.ny.gov/sitemap.xml"]
+    allowed_domains = [DOMAIN]
+    sitemap_urls = [f"https://{DOMAIN}/sitemap.xml"]
     # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#module-scrapy.spidermiddlewares.httperror
     handle_httpstatus_list = [404]
 
