@@ -51,7 +51,9 @@ def process(response: Response):
                 url = link.css("::attr(href)").get()
                 absolute_url = response.urljoin(url)
 
-                if not absolute_url.startswith("http"):
+                scheme = urlparse(absolute_url).scheme
+                if scheme not in ["http", "https"]:
+                    # mailto, etc.
                     continue
 
                 # no need to download a PDF
