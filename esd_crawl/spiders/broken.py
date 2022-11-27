@@ -75,9 +75,14 @@ class BrokenSpider(SitemapSpider):
     # not all of these are valid status codes, but that's ok
     handle_httpstatus_list = list(HTTP_ERROR_CODE_RANGE)
 
-    # keep the referer, even for redirects through HTTP
-    # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#acceptable-values-for-referrer-policy
-    custom_settings = {"REFERRER_POLICY": "unsafe-url"}
+    custom_settings = {
+        "HTTPCACHE_ENABLED": True,
+        "HTTPCACHE_EXPIRATION_SECS": 60 * 60 * 24 * 7,  # 1 week
+        "HTTPCACHE_POLICY": "scrapy.extensions.httpcache.RFC2616Policy",
+        # keep the referer, even for redirects through HTTP
+        # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#acceptable-values-for-referrer-policy
+        "REFERRER_POLICY": "unsafe-url",
+    }
 
     def parse(self, response: Response):
         yield from process(response)
