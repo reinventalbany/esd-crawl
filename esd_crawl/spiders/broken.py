@@ -1,15 +1,17 @@
 from esd_crawl.items import BrokenLink
 from urllib.parse import urlparse
 from scrapy.http import Response, HtmlResponse
+from scrapy.link import Link
+from scrapy.linkextractors import LinkExtractor, IGNORED_EXTENSIONS
 from scrapy.spiders import SitemapSpider
+from scrapy.utils.request import referer_str
 
 DOMAIN = "esd.ny.gov"
 HTTP_ERROR_CODE_RANGE = range(400, 500)
 
-
-def referer(response: Response):
-    ref: bytes | None = response.request.headers.get("referer")
-    return ref.decode("utf-8") if ref else None
+# https://stackoverflow.com/a/69039960/358804
+(deny_extensions := IGNORED_EXTENSIONS.copy()).remove("pdf")
+EXTRACTOR = LinkExtractor(deny_extensions=deny_extensions)
 
 
 def is_catch_all_page(url: str):
@@ -19,48 +21,53 @@ def is_catch_all_page(url: str):
     return url_obj.hostname == DOMAIN and url_obj.path in ["", "/", "/corporate-info"]
 
 
-def process_pdf(response: Response):
-    title = response.request.meta.get("title")
-    source = referer(response)
+def follow_links(response: HtmlResponse):
+    links: list[Link] = EXTRACTOR.extract_links(response)
+    for link in links:
+        path = urlparse(link.url).path
+        is_pdf = path.lower().endswith(".pdf")
 
-    # check for PDF URLs that redirect to the homepage, or to the page that linked to them
-    redirects: list[str] | None = response.request.meta.get("redirect_urls")
-    if redirects:
-        initial_url = redirects[0]
-        if is_catch_all_page(response.url):
-            yield BrokenLink(
-                url=initial_url, source=source, title=title, reason="catch-all"
-            )
-        # TODO normalize URL
-        elif response.url == source:
-            yield BrokenLink(
-                url=initial_url, source=source, title=title, reason="circular-redirect"
-            )
-
-    # handle PDF 40x errors
-    if response.status in HTTP_ERROR_CODE_RANGE:
-        yield BrokenLink(url=response.url, source=source, title=title, reason="404")
-
-
-def process_html(response: HtmlResponse):
-    # find links to PDFs
-    for link in response.css('a[href$=".pdf"]'):
-        title = link.css("::text").get()
-        url = link.css("::attr(href)").get()
+        # no need to download a PDF
+        method = "HEAD" if is_pdf else "GET"
 
         yield response.follow(
-            url,
-            # no need to download the PDF
-            method="HEAD",
+            link.url,
+            method=method,
             # allow for redirects to the same page
             # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
-            dont_filter=True,
-            meta={"title": title},
-            callback=process_pdf,
+            dont_filter=is_pdf,
+            meta={"title": link.text},
         )
 
-    # for next_page in response.css("a[href]::attr(href)").extract():
-    #     yield response.follow(next_page, self.parse)
+
+def process(response: Response):
+    req = response.request
+    title = req.meta.get("title")
+    source = referer_str(req)
+
+    # handle 40x errors
+    if response.status in HTTP_ERROR_CODE_RANGE:
+        yield BrokenLink(url=response.url, source=source, title=title, reason="404")
+    else:
+        # check for URLs that redirect to the homepage, or to the page that linked to them
+        redirects: list[str] = req.meta.get("redirect_urls", [])
+        if redirects:
+            initial_url = redirects[0]
+            if is_catch_all_page(response.url):
+                yield BrokenLink(
+                    url=initial_url, source=source, title=title, reason="catch-all"
+                )
+            # TODO normalize URL
+            elif response.url == source:
+                yield BrokenLink(
+                    url=initial_url,
+                    source=source,
+                    title=title,
+                    reason="circular-redirect",
+                )
+
+        if isinstance(response, HtmlResponse):
+            yield from follow_links(response)
 
 
 class BrokenSpider(SitemapSpider):
@@ -72,10 +79,14 @@ class BrokenSpider(SitemapSpider):
     # not all of these are valid status codes, but that's ok
     handle_httpstatus_list = list(HTTP_ERROR_CODE_RANGE)
 
-    # keep the referer, even for redirects through HTTP
-    # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#acceptable-values-for-referrer-policy
-    custom_settings = {"REFERRER_POLICY": "unsafe-url"}
+    custom_settings = {
+        "HTTPCACHE_ENABLED": True,
+        "HTTPCACHE_EXPIRATION_SECS": 60 * 60 * 24 * 7,  # 1 week
+        "HTTPCACHE_POLICY": "scrapy.extensions.httpcache.RFC2616Policy",
+        # keep the referer, even for redirects through HTTP
+        # https://docs.scrapy.org/en/latest/topics/spider-middleware.html#acceptable-values-for-referrer-policy
+        "REFERRER_POLICY": "unsafe-url",
+    }
 
     def parse(self, response: Response):
-        for item in process_html(response):
-            yield item
+        yield from process(response)
