@@ -15,6 +15,30 @@ def is_catch_all_page(url: str):
     return url_obj.hostname == DOMAIN and url_obj.path in ["", "/", "/corporate-info"]
 
 
+def follow_links(response: HtmlResponse):
+    for link in response.css("a[href]"):
+        title = link.css("::text").get()
+        url = link.css("::attr(href)").get()
+        absolute_url = response.urljoin(url)
+
+        scheme = urlparse(absolute_url).scheme
+        if scheme not in ["http", "https"]:
+            # mailto, etc.
+            continue
+
+        # no need to download a PDF
+        method = "HEAD" if absolute_url.lower().endswith(".pdf") else "GET"
+
+        yield response.follow(
+            absolute_url,
+            method=method,
+            # allow for redirects to the same page
+            # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
+            dont_filter=is_catch_all_page(absolute_url),
+            meta={"title": title},
+        )
+
+
 def process(response: Response):
     req = response.request
     title = req.meta.get("title")
@@ -42,28 +66,7 @@ def process(response: Response):
                 )
 
         if isinstance(response, HtmlResponse):
-            # find links
-            for link in response.css("a[href]"):
-                title = link.css("::text").get()
-                url = link.css("::attr(href)").get()
-                absolute_url = response.urljoin(url)
-
-                scheme = urlparse(absolute_url).scheme
-                if scheme not in ["http", "https"]:
-                    # mailto, etc.
-                    continue
-
-                # no need to download a PDF
-                method = "HEAD" if absolute_url.lower().endswith(".pdf") else "GET"
-
-                yield response.follow(
-                    absolute_url,
-                    method=method,
-                    # allow for redirects to the same page
-                    # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
-                    dont_filter=is_catch_all_page(absolute_url),
-                    meta={"title": title},
-                )
+            yield from follow_links(response)
 
 
 class BrokenSpider(SitemapSpider):

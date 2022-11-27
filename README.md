@@ -87,7 +87,7 @@ Example, using [`gsutil`](https://cloud.google.com/storage/docs/gsutil):
 gsutil -m rsync -r tables gs://esd-data/tables
 ```
 
-## Broken links to PDFs
+## Broken links
 
 ```sh
 scrapy runspider esd_crawl/spiders/broken.py -L INFO -O results/broken.csv
