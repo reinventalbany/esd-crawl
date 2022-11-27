@@ -19,48 +19,47 @@ def is_catch_all_page(url: str):
     return url_obj.hostname == DOMAIN and url_obj.path in ["", "/", "/corporate-info"]
 
 
-def process_pdf(response: Response):
+def process(response: Response):
     title = response.request.meta.get("title")
     source = referer(response)
 
-    # check for PDF URLs that redirect to the homepage, or to the page that linked to them
-    redirects: list[str] | None = response.request.meta.get("redirect_urls")
-    if redirects:
-        initial_url = redirects[0]
-        if is_catch_all_page(response.url):
-            yield BrokenLink(
-                url=initial_url, source=source, title=title, reason="catch-all"
-            )
-        # TODO normalize URL
-        elif response.url == source:
-            yield BrokenLink(
-                url=initial_url, source=source, title=title, reason="circular-redirect"
-            )
-
-    # handle PDF 40x errors
+    # handle 40x errors
     if response.status in HTTP_ERROR_CODE_RANGE:
         yield BrokenLink(url=response.url, source=source, title=title, reason="404")
+    else:
+        # check for URLs that redirect to the homepage, or to the page that linked to them
+        redirects: list[str] = response.request.meta.get("redirect_urls", [])
+        if redirects:
+            initial_url = redirects[0]
+            if is_catch_all_page(response.url):
+                yield BrokenLink(
+                    url=initial_url, source=source, title=title, reason="catch-all"
+                )
+            # TODO normalize URL
+            elif response.url == source:
+                yield BrokenLink(
+                    url=initial_url,
+                    source=source,
+                    title=title,
+                    reason="circular-redirect",
+                )
 
+        if isinstance(response, HtmlResponse):
+            # find links
+            for link in response.css("a[href]"):
+                title = link.css("::text").get()
+                url = link.css("::attr(href)").get()
+                # no need to download a PDF
+                method = "HEAD" if url.endswith(".pdf") else "GET"
 
-def process_html(response: HtmlResponse):
-    # find links to PDFs
-    for link in response.css('a[href$=".pdf"]'):
-        title = link.css("::text").get()
-        url = link.css("::attr(href)").get()
-
-        yield response.follow(
-            url,
-            # no need to download the PDF
-            method="HEAD",
-            # allow for redirects to the same page
-            # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
-            dont_filter=True,
-            meta={"title": title},
-            callback=process_pdf,
-        )
-
-    # for next_page in response.css("a[href]::attr(href)").extract():
-    #     yield response.follow(next_page, self.parse)
+                yield response.follow(
+                    url,
+                    method=method,
+                    # allow for redirects to the same page
+                    # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
+                    dont_filter=True,
+                    meta={"title": title},
+                )
 
 
 class BrokenSpider(SitemapSpider):
@@ -77,5 +76,4 @@ class BrokenSpider(SitemapSpider):
     custom_settings = {"REFERRER_POLICY": "unsafe-url"}
 
     def parse(self, response: Response):
-        for item in process_html(response):
-            yield item
+        yield from process(response)

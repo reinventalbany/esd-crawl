@@ -1,4 +1,4 @@
-from esd_crawl.spiders.broken import process_html, process_pdf
+from esd_crawl.spiders.broken import process
 import pytest
 from scrapy.http import Request, HtmlResponse, Response
 
@@ -27,7 +27,7 @@ def test_http_no_links():
         request=request,
     )
 
-    items = list(process_html(response))
+    items = list(process(response))
     assert items == []
 
 
@@ -47,7 +47,7 @@ def test_http_pdf_link(mime_type):
         request=request,
     )
 
-    items = list(process_html(response))
+    items = list(process(response))
     assert len(items) == 1
     pdf_request = items[0]
     assert pdf_request.url == pdf_url
@@ -56,6 +56,22 @@ def test_http_pdf_link(mime_type):
     # TODO fix
     # referer = pdf_request.headers["referer"].decode("utf-8")
     # assert referer == page_url
+
+
+def test_html_404():
+    url = "https://esd.ny.gov/broken.html"
+
+    request = Request(url=url, headers={"Referer": "https://esd.ny.gov/some.html"})
+    response = HtmlResponse(
+        url=url,
+        status=404,
+        body=b"not found",
+        request=request,
+    )
+
+    items = list(process(response))
+    assert len(items) == 1
+    assert items[0].url == url
 
 
 def test_pdf_404():
@@ -70,9 +86,32 @@ def test_pdf_404():
         request=request,
     )
 
-    items = list(process_pdf(response))
+    items = list(process(response))
     assert len(items) == 1
     assert items[0].url == url
+
+
+def test_html_redirect_to_homepage():
+    source_url = "https://esd.ny.gov/some.html"
+    redirect_url = "https://esd.ny.gov/other.html"
+    end_url = "https://esd.ny.gov"
+
+    request = Request(
+        url=end_url,
+        meta={"redirect_urls": [redirect_url]},
+        headers={"Referer": source_url},
+    )
+    response = HtmlResponse(
+        url=end_url,
+        status=200,
+        request=request,
+    )
+
+    items = list(process(response))
+    assert len(items) == 1
+    item = items[0]
+    assert item.url == redirect_url
+    assert item.source == source_url
 
 
 def test_pdf_redirect_to_homepage():
@@ -92,10 +131,32 @@ def test_pdf_redirect_to_homepage():
         request=request,
     )
 
-    items = list(process_pdf(response))
+    items = list(process(response))
     assert len(items) == 1
     item = items[0]
     assert item.url == pdf_url
+    assert item.source == source_url
+
+
+def test_circular_html_redirect():
+    source_url = "https://esd.ny.gov/some.html"
+    redirect_url = "https://esd.ny.gov/other.html"
+
+    request = Request(
+        url=source_url,
+        meta={"redirect_urls": [redirect_url]},
+        headers={"Referer": source_url},
+    )
+    response = HtmlResponse(
+        url=source_url,
+        status=200,
+        request=request,
+    )
+
+    items = list(process(response))
+    assert len(items) == 1
+    item = items[0]
+    assert item.url == redirect_url
     assert item.source == source_url
 
 
@@ -115,7 +176,7 @@ def test_circular_pdf_redirect():
         request=request,
     )
 
-    items = list(process_pdf(response))
+    items = list(process(response))
     assert len(items) == 1
     item = items[0]
     assert item.url == pdf_url
