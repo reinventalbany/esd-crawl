@@ -61,7 +61,7 @@ def process(response: Response):
                     method=method,
                     # allow for redirects to the same page
                     # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
-                    dont_filter=True,
+                    dont_filter=is_catch_all_page(absolute_url),
                     meta={"title": title},
                 )
 
