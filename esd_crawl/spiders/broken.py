@@ -1,11 +1,17 @@
 from esd_crawl.items import BrokenLink
 from urllib.parse import urlparse
 from scrapy.http import Response, HtmlResponse
+from scrapy.link import Link
+from scrapy.linkextractors import LinkExtractor, IGNORED_EXTENSIONS
 from scrapy.spiders import SitemapSpider
 from scrapy.utils.request import referer_str
 
 DOMAIN = "esd.ny.gov"
 HTTP_ERROR_CODE_RANGE = range(400, 500)
+
+# https://stackoverflow.com/a/69039960/358804
+(deny_extensions := IGNORED_EXTENSIONS.copy()).remove("pdf")
+EXTRACTOR = LinkExtractor(deny_extensions=deny_extensions)
 
 
 def is_catch_all_page(url: str):
@@ -16,26 +22,18 @@ def is_catch_all_page(url: str):
 
 
 def follow_links(response: HtmlResponse):
-    for link in response.css("a[href]"):
-        title = link.css("::text").get()
-        url = link.css("::attr(href)").get()
-        absolute_url = response.urljoin(url)
-
-        scheme = urlparse(absolute_url).scheme
-        if scheme not in ["http", "https"]:
-            # mailto, etc.
-            continue
-
+    links: list[Link] = EXTRACTOR.extract_links(response)
+    for link in links:
         # no need to download a PDF
-        method = "HEAD" if absolute_url.lower().endswith(".pdf") else "GET"
+        method = "HEAD" if link.url.lower().endswith(".pdf") else "GET"
 
         yield response.follow(
-            absolute_url,
+            link.url,
             method=method,
             # allow for redirects to the same page
             # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
-            dont_filter=is_catch_all_page(absolute_url),
-            meta={"title": title},
+            dont_filter=is_catch_all_page(link.url),
+            meta={"title": link.text},
         )
 
 
