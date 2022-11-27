@@ -2,14 +2,10 @@ from esd_crawl.items import BrokenLink
 from urllib.parse import urlparse
 from scrapy.http import Response, HtmlResponse
 from scrapy.spiders import SitemapSpider
+from scrapy.utils.request import referer_str
 
 DOMAIN = "esd.ny.gov"
 HTTP_ERROR_CODE_RANGE = range(400, 500)
-
-
-def referer(response: Response):
-    ref: bytes | None = response.request.headers.get("referer")
-    return ref.decode("utf-8") if ref else None
 
 
 def is_catch_all_page(url: str):
@@ -20,15 +16,16 @@ def is_catch_all_page(url: str):
 
 
 def process(response: Response):
-    title = response.request.meta.get("title")
-    source = referer(response)
+    req = response.request
+    title = req.meta.get("title")
+    source = referer_str(req)
 
     # handle 40x errors
     if response.status in HTTP_ERROR_CODE_RANGE:
         yield BrokenLink(url=response.url, source=source, title=title, reason="404")
     else:
         # check for URLs that redirect to the homepage, or to the page that linked to them
-        redirects: list[str] = response.request.meta.get("redirect_urls", [])
+        redirects: list[str] = req.meta.get("redirect_urls", [])
         if redirects:
             initial_url = redirects[0]
             if is_catch_all_page(response.url):

@@ -33,7 +33,7 @@ def test_http_no_links():
 
 def test_http_mailto_link():
     page_url = "https://esd.ny.gov"
-    body = html(f"""<a href="mailto:some@email.com">Email</a>""")
+    body = html('<a href="mailto:some@email.com">Email</a>')
 
     request = Request(url=page_url)
     response = HtmlResponse(
