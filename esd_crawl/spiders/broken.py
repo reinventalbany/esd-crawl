@@ -55,7 +55,7 @@ def process(response: Response):
                     continue
 
                 # no need to download a PDF
-                method = "HEAD" if absolute_url.endswith(".pdf") else "GET"
+                method = "HEAD" if absolute_url.lower().endswith(".pdf") else "GET"
 
                 yield response.follow(
                     absolute_url,

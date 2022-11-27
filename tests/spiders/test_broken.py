@@ -68,6 +68,33 @@ def test_http_pdf_link(mime_type):
     pdf_request = items[0]
     assert pdf_request.url == pdf_url
     assert pdf_request.meta["title"] == title
+    assert pdf_request.method == "HEAD"
+
+    # TODO fix
+    # referer = pdf_request.headers["referer"].decode("utf-8")
+    # assert referer == page_url
+
+
+def test_http_pdf_link_caps():
+    page_url = "https://esd.ny.gov"
+    pdf_url = "https://esd.ny.gov/Reports/2015_2016/03312016_EXCELSIORJOBSPROGRAMQUARTERLYREPORT.PDF"
+    title = "Some PDF"
+    body = html(f"""<a href="{pdf_url}">{title}</a>""")
+
+    request = Request(url=page_url)
+    response = HtmlResponse(
+        url=page_url,
+        status=200,
+        body=body,
+        request=request,
+    )
+
+    items = list(process(response))
+    assert len(items) == 1
+    pdf_request = items[0]
+    assert pdf_request.url == pdf_url
+    assert pdf_request.meta["title"] == title
+    assert pdf_request.method == "HEAD"
 
     # TODO fix
     # referer = pdf_request.headers["referer"].decode("utf-8")
