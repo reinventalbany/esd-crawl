@@ -24,15 +24,18 @@ def is_catch_all_page(url: str):
 def follow_links(response: HtmlResponse):
     links: list[Link] = EXTRACTOR.extract_links(response)
     for link in links:
+        path = urlparse(link.url).path
+        is_pdf = path.lower().endswith(".pdf")
+
         # no need to download a PDF
-        method = "HEAD" if link.url.lower().endswith(".pdf") else "GET"
+        method = "HEAD" if is_pdf else "GET"
 
         yield response.follow(
             link.url,
             method=method,
             # allow for redirects to the same page
             # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
-            dont_filter=is_catch_all_page(link.url),
+            dont_filter=is_pdf,
             meta={"title": link.text},
         )
 
