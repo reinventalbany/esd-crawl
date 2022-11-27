@@ -42,7 +42,7 @@ def follow_links(response: HtmlResponse):
 
 def process(response: Response):
     req = response.request
-    title = req.meta.get("title")
+    title = req.meta.get("title", "").strip()
     source = referer_str(req)
 
     # handle 40x errors
