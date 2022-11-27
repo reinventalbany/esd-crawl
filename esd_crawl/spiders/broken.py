@@ -49,6 +49,10 @@ def process(response: Response):
             for link in response.css("a[href]"):
                 title = link.css("::text").get()
                 url = link.css("::attr(href)").get()
+
+                if url.startswith("mailto:"):
+                    continue
+
                 # no need to download a PDF
                 method = "HEAD" if url.endswith(".pdf") else "GET"
 

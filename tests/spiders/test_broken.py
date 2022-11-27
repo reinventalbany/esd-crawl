@@ -31,6 +31,22 @@ def test_http_no_links():
     assert items == []
 
 
+def test_http_mailto_link():
+    page_url = "https://esd.ny.gov"
+    body = html(f"""<a href="mailto:some@email.com">Email</a>""")
+
+    request = Request(url=page_url)
+    response = HtmlResponse(
+        url=page_url,
+        status=200,
+        body=body,
+        request=request,
+    )
+
+    items = list(process(response))
+    assert items == []
+
+
 @pytest.mark.parametrize("mime_type", ["text/html", "text/html; charset=utf-8"])
 def test_http_pdf_link(mime_type):
     page_url = "https://esd.ny.gov"
