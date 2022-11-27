@@ -49,15 +49,16 @@ def process(response: Response):
             for link in response.css("a[href]"):
                 title = link.css("::text").get()
                 url = link.css("::attr(href)").get()
+                absolute_url = response.urljoin(url)
 
-                if url.startswith("mailto:"):
+                if not absolute_url.startswith("http"):
                     continue
 
                 # no need to download a PDF
-                method = "HEAD" if url.endswith(".pdf") else "GET"
+                method = "HEAD" if absolute_url.endswith(".pdf") else "GET"
 
                 yield response.follow(
-                    url,
+                    absolute_url,
                     method=method,
                     # allow for redirects to the same page
                     # https://docs.scrapy.org/en/latest/topics/settings.html#dupefilter-class
